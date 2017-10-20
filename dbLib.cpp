@@ -3,8 +3,10 @@
  * Name        : dbLib.cpp
  * Author      : Duc Dung Nguyen, Nguyen Hoang Minh
  * Email       : nddung@hcmut.edu.vn
- * Copyright   : Faculty of Computer Science and Engineering - Bach Khoa University
- * Description : library for Assignment 1 - Data structures and Algorithms - Fall 2017
+ * Copyright   : Faculty of Computer Science and Engineering - Bach Khoa
+ * University
+ * Description : library for Assignment 1 - Data structures and Algorithms -
+ * Fall 2017
  *               This file implements functions used for database management
  * =========================================================================================
  */
@@ -22,60 +24,120 @@
 
 using namespace std;
 
-void    strPrintTime(char* des, time_t& t) {
-    tm *pTime = gmtime(&t);
-    strftime(des, 26, "%Y-%m-%d %H:%M:%S", pTime);
+void strPrintTime(char* des, time_t& t) {
+      tm* pTime = gmtime(&t);
+      strftime(des, 26, "%Y-%m-%d %H:%M:%S", pTime);
 }
 
-void loadNinjaDB(char* fName, L1List<NinjaInfo_t> &db) {
-	// TODO: write code to load information from file into db
+void loadNinjaDB(char* fName, L1List<NinjaInfo_t>& db) {
+      // TODO: write code to load information from file into db
+      ifstream file(fName, ios::in);
 
+      if (!file.is_open()) {
+            cout << "File not found\n";
+            cout << "Exiting\n";
+            exit(-1);
+      }
+
+      char* buffer = new char[100];
+      file.getline(buffer, 100);
+
+      while (file.getline(buffer, 100)) {
+
+            if (string(buffer).empty())
+                  continue;
+
+            NinjaInfo_t ninja;
+            if (!parseNinjaInfo(buffer, ninja)) {
+                  cout << "::::" << buffer << "::::" << endl;
+                  cout << "KILL" << endl;
+                  exit(-1);
+            }
+            db.insertHead(ninja);
+      }
+
+      file.close();
 }
 
 bool parseNinjaInfo(char* pBuf, NinjaInfo_t& nInfo) {
-    // TODO: write code to parse information from a string buffer, ignore if you don't use it
-    return true;
+      // TODO: write code to parse information from a string buffer, ignore if
+      // you don't use it
+      struct tm thisTime;
+      int       rev = 0;
+
+      const char* temp = pBuf;
+
+      if (
+         sscanf(
+            temp,
+            "%d,%d/%d/%d %d:%d:%d,%10[a-zA-Z0-9],%lF,%lF,%*s",
+            &rev,
+            &thisTime.tm_mday,
+            &thisTime.tm_mon,
+            &thisTime.tm_year,
+            &thisTime.tm_hour,
+            &thisTime.tm_min,
+            &thisTime.tm_sec,
+            nInfo.id,
+            &nInfo.longitude,
+            &nInfo.latitude) != 10)
+            return false;
+
+      thisTime.tm_year -= 1900;
+      thisTime.tm_mon -= 1;
+      thisTime.tm_isdst = -1;
+
+      nInfo.timestamp = mktime(&thisTime);
+
+      return true;
 }
 
 
 void process(L1List<ninjaEvent_t>& eventList, L1List<NinjaInfo_t>& bList) {
-    void*   pGData = NULL;
-    initNinjaGlobalData(&pGData);
+      void* pGData = NULL;
+      initNinjaGlobalData(&pGData);
 
-    while (!eventList.isEmpty()) {
-        if(!processEvent(eventList[0], bList, pGData))
-            cout << eventList[0].code << " is an invalid event\n";
-        eventList.removeHead();
-    }
+      while (!eventList.isEmpty()) {
+            if (!processEvent(eventList[0], bList, pGData))
+                  cout << eventList[0].code << " is an invalid event\n";
+            eventList.removeHead();
+      }
 
-    releaseNinjaGlobalData(pGData);
+      releaseNinjaGlobalData(pGData);
 }
 
 
 bool initNinjaGlobalData(void** pGData) {
-    /// TODO: You should define this function if you would like to use some extra data
-    /// the data should be allocated and pass the address into pGData
-    return true;
+      /// TODO: You should define this function if you would like to use some
+      /// extra data
+      /// the data should be allocated and pass the address into pGData
+      return true;
 }
 
 void releaseNinjaGlobalData(void* pGData) {
-    /// TODO: You should define this function if you allocated extra data at initialization stage
-    /// The data pointed by pGData should be released
+      /// TODO: You should define this function if you allocated extra data at
+      /// initialization stage
+      /// The data pointed by pGData should be released
 }
 
 
 void printNinjaInfo(NinjaInfo_t& b) {
-    printf("%s: (%0.5f, %0.5f), %s\n", b.id, b.longitude, b.latitude, ctime(&b.timestamp));
+      printf(
+         "%s: (%0.5f, %0.5f), %s\n",
+         b.id,
+         b.longitude,
+         b.latitude,
+         ctime(&b.timestamp));
 }
 
 /// This function converts decimal degrees to radians
 double deg2rad(double deg) {
-    return (deg * pi / 180);
+      return (deg * pi / 180);
 }
 
 ///  This function converts radians to decimal degrees
 double rad2deg(double rad) {
-    return (rad * 180 / pi);
+      return (rad * 180 / pi);
 }
 
 /**
@@ -88,12 +150,13 @@ double rad2deg(double rad) {
  * @return The distance between the two points in kilometers
  */
 double distanceEarth(double lat1d, double lon1d, double lat2d, double lon2d) {
-    double lat1r, lon1r, lat2r, lon2r, u, v;
-    lat1r = deg2rad(lat1d);
-    lon1r = deg2rad(lon1d);
-    lat2r = deg2rad(lat2d);
-    lon2r = deg2rad(lon2d);
-    u = sin((lat2r - lat1r)/2);
-    v = sin((lon2r - lon1r)/2);
-    return 2.0 * earthRadiusKm * asin(sqrt(u * u + cos(lat1r) * cos(lat2r) * v * v));
+      double lat1r, lon1r, lat2r, lon2r, u, v;
+      lat1r = deg2rad(lat1d);
+      lon1r = deg2rad(lon1d);
+      lat2r = deg2rad(lat2d);
+      lon2r = deg2rad(lon2d);
+      u     = sin((lat2r - lat1r) / 2);
+      v     = sin((lon2r - lon1r) / 2);
+      return 2.0 * earthRadiusKm *
+             asin(sqrt(u * u + cos(lat1r) * cos(lat2r) * v * v));
 }
