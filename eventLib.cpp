@@ -27,10 +27,10 @@ void loadEvents(char* fName, L1List<ninjaEvent_t>& eList) {
       char* buffer = new char[100];
       file.getline(buffer, 100);
 
-      char* code      = new char[20]{0};
+      char* code      = new char[20];
       int   codeIndex = 0;
       do {
-            if (string(buffer).empty())
+            if (buffer[0] == '\0' || buffer[0] == '\r')
                   continue;
 
             for (int i = 0; buffer[i] != '\0'; ++i) {
@@ -40,7 +40,7 @@ void loadEvents(char* fName, L1List<ninjaEvent_t>& eList) {
                         eList.push_back(event);
 
                         delete[] code;
-                        code      = new char[20]{0};
+                        code      = new char[20];
                         codeIndex = 0;
                   }
                   else {

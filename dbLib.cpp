@@ -44,18 +44,18 @@ void loadNinjaDB(char* fName, L1List<NinjaInfo_t>& db) {
 
       while (file.getline(buffer, 100)) {
 
-            if (string(buffer).empty())
+            if (buffer[0] == '\0' || buffer[0] == '\r')
                   continue;
 
             NinjaInfo_t ninja;
             if (!parseNinjaInfo(buffer, ninja)) {
                   cout << "::::" << buffer << "::::" << endl;
                   cout << "KILL" << endl;
-                  exit(-1);
+                  exit(-2);
             }
             db.insertHead(ninja);
       }
-
+      delete[] buffer;
       file.close();
 }
 
