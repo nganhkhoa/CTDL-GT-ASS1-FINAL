@@ -57,6 +57,7 @@ void loadNinjaDB(char* fName, L1List<NinjaInfo_t>& db) {
       }
       delete[] buffer;
       file.close();
+      db.reverse();
 }
 
 bool parseNinjaInfo(char* pBuf, NinjaInfo_t& nInfo) {
@@ -95,7 +96,7 @@ bool parseNinjaInfo(char* pBuf, NinjaInfo_t& nInfo) {
 
 void process(L1List<ninjaEvent_t>& eventList, L1List<NinjaInfo_t>& bList) {
       void* pGData = NULL;
-      initNinjaGlobalData(&pGData);
+      initNinjaGlobalData(&pGData, eventList, bList);
 
       while (!eventList.isEmpty()) {
             if (!processEvent(eventList[0], bList, pGData))
@@ -107,10 +108,59 @@ void process(L1List<ninjaEvent_t>& eventList, L1List<NinjaInfo_t>& bList) {
 }
 
 
-bool initNinjaGlobalData(void** pGData) {
+bool initNinjaGlobalData(
+   void**                pGData,
+   L1List<ninjaEvent_t>& eventList,
+   L1List<NinjaInfo_t>&  bList) {
       /// TODO: You should define this function if you would like to use some
       /// extra data
       /// the data should be allocated and pass the address into pGData
+      *pGData                    = new L1List<char*>*[2];
+      L1List<char*>** listOfList = (L1List<char*>**) *pGData;
+
+      L1List<char*>* allEvents = listOfList[0] = new L1List<char*>();
+      L1List<char*>* allNinjas = listOfList[1] = new L1List<char*>();
+
+      auto copyEvents = [](ninjaEvent_t& event, void* v) {
+            L1List<char*>* allEvents  = (L1List<char*>*) v;
+            char*          copiedCode = new char[strlen(event.code) + 1];
+            strcpy(copiedCode, event.code);
+            allEvents->push_back(copiedCode);
+      };
+
+      eventList.traverse(copyEvents, allEvents);
+
+      auto getNinjaList = [](NinjaInfo_t& ninja, void* v) {
+            L1List<char*>* allNinjas = (L1List<char*>*) v;
+
+            auto findExistingNinja = [](char*& ninja, void* v) {
+                  char* ninjaTobeFound = (char*) v;
+                  if (ninjaTobeFound == NULL)
+                        return;
+                  if (strcmp(ninja, ninjaTobeFound) == 0) {
+                        ninjaTobeFound[0] = '\0';
+                  }
+            };
+
+
+            char* thisNinjaTag = new char[strlen(ninja.id) + 1];
+            strcpy(thisNinjaTag, ninja.id);
+            allNinjas->traverse(findExistingNinja, thisNinjaTag);
+
+            if (thisNinjaTag[0] == '\0') {
+                  // found
+                  return;
+            }
+            else {
+                  char* thisNinjaTag = new char[strlen(ninja.id) + 1];
+                  strcpy(thisNinjaTag, ninja.id);
+                  allNinjas->insertHead(thisNinjaTag);
+            }
+      };
+
+
+      bList.traverse(getNinjaList, allNinjas);
+
       return true;
 }
 
@@ -118,6 +168,8 @@ void releaseNinjaGlobalData(void* pGData) {
       /// TODO: You should define this function if you allocated extra data at
       /// initialization stage
       /// The data pointed by pGData should be released
+      L1List<char*>** listOfList = (L1List<char*>**) pGData;
+      delete[] listOfList;
 }
 
 

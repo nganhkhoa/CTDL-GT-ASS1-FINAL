@@ -208,4 +208,22 @@ bool L1List<T>::find(T& a, int& idx) {
       return false;
 }
 
+template <class T>
+void L1List<T>::reverse() {
+      if (isEmpty())
+            return;
+
+      L1Item<T>* prev = NULL;
+      L1Item<T>* next = _pHead;
+
+      while (_pHead) {
+            next = next->pNext;
+
+            _pHead->pNext = prev;
+
+            prev   = _pHead;
+            _pHead = next;
+      }
+      _pHead = prev;
+}
 #endif    // A01_LISTLIB_H

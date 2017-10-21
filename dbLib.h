@@ -83,7 +83,10 @@ bool processEvent(
 void process(L1List<ninjaEvent_t>& eventList, L1List<NinjaInfo_t>& nList);
 
 /// NOTE: student may create this function to allocate some global data
-bool initNinjaGlobalData(void** pGData);
+bool initNinjaGlobalData(
+   void**                pGData,
+   L1List<ninjaEvent_t>& eventList,
+   L1List<NinjaInfo_t>&  bList);
 void releaseNinjaGlobalData(void* pGData);
 
 #endif    // A01_DBLIB_H
