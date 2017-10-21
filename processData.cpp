@@ -13,6 +13,7 @@
 int extractEvent(ninjaEvent_t&, char*&);
 
 // problem set
+void problem0(L1List<char*>&);
 void problem1(L1List<NinjaInfo_t>&);
 void problem2(L1List<NinjaInfo_t>&);
 void problem3(L1List<NinjaInfo_t>&);
@@ -21,12 +22,12 @@ void problem5(L1List<NinjaInfo_t>&, char*);
 void problem6(L1List<NinjaInfo_t>&, char*);
 void problem7(L1List<NinjaInfo_t>&, char*);
 void problem8(L1List<NinjaInfo_t>&, char*);
-void problem9(L1List<NinjaInfo_t>&);
-void problem10(L1List<NinjaInfo_t>&);
-void problem11(L1List<NinjaInfo_t>&, char*);
-void problem12(L1List<NinjaInfo_t>&);
-void problem13(L1List<NinjaInfo_t>&, char*);
-void problem14(L1List<NinjaInfo_t>&);
+void problem9(L1List<NinjaInfo_t>&, L1List<char*>&);
+void problem10(L1List<NinjaInfo_t>&, L1List<char*>&);
+void problem11(L1List<char*>&, char*);
+void problem12(L1List<NinjaInfo_t>&, L1List<char*>&);
+void problem13(L1List<NinjaInfo_t>&, L1List<char*>&, char*);
+void problem14(L1List<NinjaInfo_t>&, L1List<char*>&);
 
 // time frome lhs, to rhs
 double timeInterval(NinjaInfo_t& lhs, NinjaInfo_t& rhs) {
@@ -56,8 +57,14 @@ void print(char*&);
 void print(const char*);
 void print(const int&);
 void print(const double&);
-void print(L1List<char*>*);
+void print(L1List<char*>&);
 void print(time_t&);
+
+
+//
+// ─── MAIN PROCESS
+// ───────────────────────────────────────────────────────────────
+//
 
 
 bool processEvent(
@@ -79,6 +86,8 @@ bool processEvent(
       int   code = extractEvent(event, args);
 
       switch (code) {
+            case 0:
+                  problem0(*allEvents);
             case 1:
                   problem1(nList);
                   break;
@@ -104,22 +113,22 @@ bool processEvent(
                   problem8(nList, args);
                   break;
             case 9:
-                  problem9(nList);
+                  problem9(nList, *allNinjas);
                   break;
             case 10:
-                  problem10(nList);
+                  problem10(nList, *allNinjas);
                   break;
             case 11:
-                  problem11(nList, args);
+                  problem11(*allNinjas, args);
                   break;
             case 12:
-                  problem12(nList);
+                  problem12(nList, *allNinjas);
                   break;
             case 13:
-                  problem13(nList, args);
+                  problem13(nList, *allNinjas, args);
                   break;
             case 14:
-                  problem14(nList);
+                  problem14(nList, *allNinjas);
                   break;
             default:
                   delete args;
@@ -133,6 +142,11 @@ bool processEvent(
       /// end by the endline character.
       return true;
 }
+
+//
+// ─── EXTRACT EVENTS TO CODE AND ARGS
+// ────────────────────────────────────────────
+//
 
 
 int extractEvent(ninjaEvent_t& Event, char*& args) {
@@ -166,26 +180,87 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
       }
 }
 
-void problem1(L1List<NinjaInfo_t>& list) {}
-void problem2(L1List<NinjaInfo_t>& list) {}
-void problem3(L1List<NinjaInfo_t>& list) {}
-void problem4(L1List<NinjaInfo_t>& list) {}
-void problem5(L1List<NinjaInfo_t>& list, char* ninja) {}
-void problem6(L1List<NinjaInfo_t>& list, char* ninja) {}
-void problem7(L1List<NinjaInfo_t>& list, char* ninja) {}
-void problem8(L1List<NinjaInfo_t>& list, char* ninja) {}
-void problem9(L1List<NinjaInfo_t>& list) {}
-void problem10(L1List<NinjaInfo_t>& list) {}
-void problem11(L1List<NinjaInfo_t>& list, char* ninja) {}
-void problem12(L1List<NinjaInfo_t>& list) {}
-void problem13(L1List<NinjaInfo_t>& list, char* ninja) {}
-void problem14(L1List<NinjaInfo_t>& list) {}
+//
+// ────────────────────────────────────────────────────────────────────── I
+//   :::::: S O L V I N G   P R O B L E M : :  :   :    :     :        : :
+// ────────────────────────────────────────────────────────────────────────────────
+//
+
+void problem0(L1List<char*>& allEvents) {
+      cout << "0:";
+      print(allEvents);
+      cout << "\n";
+}
 
 
-double TotalDistance(L1List<NinjaInfo_t>*, const char*) {}
-double TotalTime(L1List<NinjaInfo_t>*, const char*) {}
-double ThinkingTime(L1List<NinjaInfo_t>*, const char*) {}
-bool   isTrap(L1List<NinjaInfo_t>*, const char*, double*) {}
+void problem1(L1List<NinjaInfo_t>& recordList) {
+      cout << "1:";
+      print(recordList[0].id);
+      cout << "\n";
+}
+void problem2(L1List<NinjaInfo_t>& recordList) {
+      cout << "2:";
+      print(recordList[recordList.getSize() - 1].id);
+      cout << "\n";
+}
+void problem3(L1List<NinjaInfo_t>& ninjaList) {
+      cout << "3:";
+      int ninjaSize = ninjaList.getSize();
+      print(ninjaSize);
+      cout << "\n";
+}
+void problem4(L1List<NinjaInfo_t>& ninjaList) {
+      char* maxId = new char[10];
+
+      auto findMaxId = [](NinjaInfo_t& ninja, void* v) {
+            char* maxId = (char*) v;
+            if (strcmp(ninja.id, maxId) > 0)
+                  strcpy(maxId, ninja.id);
+      };
+
+      ninjaList.traverse(findMaxId, maxId);
+
+      cout << "4:";
+      print(maxId);
+      cout << "\n";
+}
+void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {}
+void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {}
+void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {}
+void problem8(L1List<NinjaInfo_t>& recordList, char* ninja) {}
+void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
+void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
+void problem11(L1List<char*>& ninjaList, char* ninja) {}
+void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
+void problem13(
+   L1List<NinjaInfo_t>& recordList,
+   L1List<char*>&       ninjaList,
+   char*                trap) {}
+void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
+
+
+//
+// ──────────────────────────────────────────────────────────────────────── II
+//   :::::: N I N J A   A T T R I B U T E S : :  :   :    :     :        : :
+// ──────────────────────────────────────────────────────────────────────────────────
+//
+
+
+double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {}
+double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {}
+double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {}
+bool isTrap(
+   L1List<NinjaInfo_t>& recordList,
+   const char*          ninja,
+   double*              trapPlace) {}
+
+
+//
+// ──────────────────────────────────────────────────────────────── III
+//   :::::: P R I N T   A N S W E R : :  :   :    :     :        :          :
+// ──────────────────────────────────────────────────────────────────────────
+//
+
 
 void print(char*& c) {
       cout << " " << c;
@@ -199,9 +274,9 @@ void print(const int& i) {
 void print(const double& d) {
       cout << " " << setprecision(12) << d;
 }
-void print(L1List<char*>* l) {
+void print(L1List<char*>& l) {
       void (*op)(char*&) = &print;
-      l->traverse(op);
+      l.traverse(op);
 }
 void print(time_t& t) {
       char* time = new char[26];
