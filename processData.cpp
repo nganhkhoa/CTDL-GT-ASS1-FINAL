@@ -88,6 +88,7 @@ bool processEvent(
       switch (code) {
             case 0:
                   problem0(*allEvents);
+                  break;
             case 1:
                   problem1(nList);
                   break;
@@ -230,7 +231,48 @@ void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {}
 void problem8(L1List<NinjaInfo_t>& recordList, char* ninja) {}
 void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
 void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
-void problem11(L1List<char*>& ninjaList, char* ninja) {}
+void problem11(L1List<char*>& ninjaList, char* ninja) {
+      struct Ans
+      {
+            char* attackedNinja;
+            char* fakeNinja;
+
+            Ans(const char* f) {
+                  fakeNinja     = new char[10];
+                  attackedNinja = new char[10];
+                  strcpy(fakeNinja, f);
+                  strcpy(attackedNinja, "");
+            }
+            ~Ans() {
+                  delete[] attackedNinja;
+                  delete[] fakeNinja;
+                  attackedNinja = NULL;
+                  fakeNinja     = NULL;
+            }
+      };
+
+      auto findAttackedNinja = [](char*& thisNinja, void* v) {
+            Ans* ans = (Ans*) v;
+            if (
+               strcmp(ans->fakeNinja, thisNinja) > 0 &&
+               strcmp(ans->attackedNinja, thisNinja) < 0) {
+                  strcpy(ans->attackedNinja, thisNinja);
+            }
+      };
+
+      Ans* ans = new Ans(ninja);
+      ninjaList.traverse(findAttackedNinja, ans);
+
+      cout << "11:";
+      if (strcmp(ans->attackedNinja, "") == 0)
+            print(-1);
+      else
+            print(ans->attackedNinja);
+      cout << "\n";
+
+      delete ans;
+      ans = NULL;
+}
 void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
 void problem13(
    L1List<NinjaInfo_t>& recordList,
