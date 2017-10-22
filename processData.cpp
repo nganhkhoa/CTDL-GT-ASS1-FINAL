@@ -44,11 +44,11 @@ bool isStop(NinjaInfo_t& lhs, NinjaInfo_t& rhs) {
 }
 
 // total distance of a ninja
-double TotalDistance(L1List<NinjaInfo_t>&, const char*);
-double TotalTime(L1List<NinjaInfo_t>&, const char*);
-double ThinkingTime(L1List<NinjaInfo_t>&, const char*);
-bool   isTrap(L1List<NinjaInfo_t>&, const char*, double[4]);
-
+double  TotalDistance(L1List<NinjaInfo_t>&, const char*);
+double  TotalTime(L1List<NinjaInfo_t>&, const char*);
+double  ThinkingTime(L1List<NinjaInfo_t>&, const char*);
+double* parseTrapPlace(const char*);
+bool    isTrap(L1List<NinjaInfo_t>&, const char*, double[4]);
 // print the result
 void print() {
       cout << " Something's not right";
@@ -495,7 +495,55 @@ void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
 void problem13(
    L1List<NinjaInfo_t>& recordList,
    L1List<char*>&       ninjaList,
-   char*                trap) {}
+   char*                trap) {
+
+      struct Ans
+      {
+            double*              trap;
+            L1List<char*>*       stack;
+            L1List<NinjaInfo_t>* recordList;
+
+            Ans(double* TrapPlace, L1List<NinjaInfo_t>& list) {
+                  recordList = &list;
+                  stack      = new L1List<char*>();
+                  trap       = new double[4];
+
+                  trap[0] = TrapPlace[0];
+                  trap[1] = TrapPlace[1];
+                  trap[2] = TrapPlace[2];
+                  trap[3] = TrapPlace[3];
+            }
+
+            ~Ans() {
+                  delete[] trap;
+                  delete stack;
+                  trap       = NULL;
+                  stack      = NULL;
+                  recordList = NULL;
+            }
+      };
+
+      auto findLostNinja = [](char*& ninja, void* v) {
+            Ans* ans = (Ans*) v;
+            if (isTrap(*ans->recordList, ninja, ans->trap))
+                  ans->stack->insertHead(ninja);
+      };
+
+      double* TrapPlace = parseTrapPlace(trap);
+
+      Ans* ans = new Ans(TrapPlace, recordList);
+      ninjaList.traverse(findLostNinja, ans);
+
+      cout << "13:";
+      if (ans->stack->isEmpty())
+            print(-1);
+      else
+            print(*ans->stack);
+      cout << "\n";
+
+      delete ans;
+      ans = NULL;
+}
 void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
 
 
@@ -589,11 +637,116 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             return 0;
       return ans->time;
 }
+
+double* parseTrapPlace(const char* trap) {
+      double latA = 0;
+      double lonA = 0;
+      double latB = 0;
+      double lonB = 0;
+
+      int    parse       = 1;
+      string parseString = "";
+      for (unsigned int parse = 1; parse < 17; ++parse) {
+            if (parse % 4 == 0) {
+                  parseString += trap[parse - 1];
+                  parseString = "0." + parseString;
+                  switch (parse / 4) {
+                        case 1:
+                              lonA = stod(parseString);
+                              break;
+                        case 2:
+                              latA = stod(parseString);
+                              break;
+                        case 3:
+                              lonB = stod(parseString);
+                              break;
+                        case 4:
+                              latB = stod(parseString);
+                              break;
+                        default:
+                              break;
+                  }
+                  parseString = "";
+                  continue;
+            }
+            parseString += trap[parse - 1];
+      }
+
+      // cout << lonA << " " << latA << " " << lonB << " " << latB;
+
+      double* ret = new double[4]{lonA, latA, lonB, latB};
+      return ret;
+}
 bool isTrap(
    L1List<NinjaInfo_t>& recordList,
    const char*          ninja,
-   double (&trapPlace)[4]) {
-      return false;
+   double*              trapPlace) {
+
+      struct Ans
+      {
+            char*   ninja;
+            double* square;
+            bool    trapped;
+
+            Ans(const char* c, double* s) {
+                  ninja = new char[strlen(c) + 1];
+                  strcpy(ninja, c);
+                  square  = s;
+                  trapped = false;
+            }
+
+            ~Ans() {
+                  delete[] ninja;
+                  ninja  = NULL;
+                  square = NULL;
+            }
+      };
+
+      auto findTrapStatus = [](NinjaInfo_t& n, void* v) {
+            Ans* ans = (Ans*) v;
+
+            if (strcmp(n.id, ans->ninja) != 0)
+                  return;
+
+            // and he is trapped
+            if (ans->trapped)
+                  return;
+
+            auto sign = [](double d) -> int { return (d < 0) ? -1 : 1; };
+
+            double lonN = n.longitude - (int) n.longitude;
+            double latN = n.latitude - (int) n.latitude;
+            double lonA = ans->square[0] * sign(lonN);
+            double latA = ans->square[1] * sign(latN);
+            double lonB = ans->square[2] * sign(lonN);
+            double latB = ans->square[3] * sign(latN);
+
+            // A left lower --- B right upper
+            bool scenario_1 =
+               (lonA <= lonN && latA <= latN && lonB >= lonN && latB >= latN);
+
+            // A left upper --- B right lower
+            bool scenario_2 =
+               (lonA <= lonN && latA >= latN && lonB >= lonN && latB <= latN);
+
+            // A right upper --- B left lower
+            bool scenario_3 =
+               (lonA >= lonN && latA >= latN && lonB <= lonN && latB <= latN);
+
+            // A right lower --- B left upper
+            bool scenario_4 =
+               (lonA >= lonN && latA <= latN && lonB <= lonN && latB >= latN);
+
+            if (scenario_1 || scenario_2 || scenario_3 || scenario_4)
+                  ans->trapped = true;
+      };
+
+      Ans* ans = new Ans(ninja, trapPlace);
+      recordList.traverse(findTrapStatus, ans);
+      double ret = ans->trapped;
+      delete ans;
+      ans = NULL;
+      return ret;
 }
 
 
