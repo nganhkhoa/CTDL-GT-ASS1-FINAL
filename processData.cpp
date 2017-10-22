@@ -225,7 +225,30 @@ void problem4(L1List<NinjaInfo_t>& ninjaList) {
       print(maxId);
       cout << "\n";
 }
-void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {}
+void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {
+      auto findFirstShowUp = [](NinjaInfo_t& ninjaRecord, void* v) {
+            NinjaInfo_t* ans = (NinjaInfo_t*) v;
+            if (strcmp(ans->id, "") == 0)
+                  return;
+
+            if (strcmp(ans->id, ninjaRecord.id) == 0) {
+                  ans->timestamp = ninjaRecord.timestamp;
+                  strcpy(ans->id, "");
+            }
+      };
+
+      NinjaInfo_t* ans = new NinjaInfo_t(ninja);
+      recordList.traverse(findFirstShowUp, ans);
+
+      cout << "5:";
+      if (strcmp(ans->id, "") == 0)
+            print(ans->timestamp);
+      else
+            print(-1);
+      cout << "\n";
+      delete ans;
+      ans = NULL;
+}
 void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {}
 void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {}
 void problem8(L1List<NinjaInfo_t>& recordList, char* ninja) {}
