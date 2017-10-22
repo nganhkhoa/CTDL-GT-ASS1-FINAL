@@ -14,6 +14,7 @@ void display(L1List<NinjaInfo_t>& nList) {
 }
 
 int main(int narg, char** argv) {
+      time_t               first = time(NULL);
       L1List<ninjaEvent_t> eventList;
       L1List<NinjaInfo_t>  db;    // database of NinjaInfo
       loadEvents(argv[1], eventList);
@@ -24,5 +25,8 @@ int main(int narg, char** argv) {
       process(eventList, db);
 
       cout << resetiosflags(ios::showbase) << setprecision(-1);
+
+      time_t last = time(NULL);
+      cout << difftime(last, first) << endl;
       return 0;
 }
