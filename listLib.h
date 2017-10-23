@@ -175,7 +175,7 @@ void L1List<T>::clean() {
 
 template <class T>
 T& L1List<T>::at(int i) {
-      if (i < 0 || i >= getSize())
+      if (i < 0 || i >= (int) getSize())
             throw new DSAException(1, "Index out of range");
 
       auto* temp = _pHead;
