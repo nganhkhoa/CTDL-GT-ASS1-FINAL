@@ -16,7 +16,7 @@ int extractEvent(ninjaEvent_t&, char*&);
 void problem0(L1List<char*>&);
 void problem1(L1List<NinjaInfo_t>&);
 void problem2(L1List<NinjaInfo_t>&);
-void problem3(L1List<NinjaInfo_t>&);
+void problem3(L1List<char*>&);
 void problem4(L1List<NinjaInfo_t>&);
 void problem5(L1List<NinjaInfo_t>&, char*);
 void problem6(L1List<NinjaInfo_t>&, char*);
@@ -29,9 +29,9 @@ void problem12(L1List<NinjaInfo_t>&, L1List<char*>&);
 void problem13(L1List<NinjaInfo_t>&, L1List<char*>&, char*);
 void problem14(L1List<NinjaInfo_t>&, L1List<char*>&);
 
-// time frome lhs, to rhs
-double timeInterval(NinjaInfo_t& lhs, NinjaInfo_t& rhs) {
-      return difftime(rhs.timestamp, lhs.timestamp);
+// time from lhs, to rhs
+double timeInterval(NinjaInfo_t& from, NinjaInfo_t& to) {
+      return difftime(to.timestamp, from.timestamp);
 }
 // distance between lhs and rhs
 double distance(NinjaInfo_t& lhs, NinjaInfo_t& rhs) {
@@ -40,7 +40,7 @@ double distance(NinjaInfo_t& lhs, NinjaInfo_t& rhs) {
 }
 // whether ninja stop between lhs and rhs
 bool isStop(NinjaInfo_t& lhs, NinjaInfo_t& rhs) {
-      return distance(lhs, rhs) / 1000 <= 5;
+      return distance(lhs, rhs) * 1000 <= 5;
 }
 
 // total distance of a ninja
@@ -96,7 +96,7 @@ bool processEvent(
                   problem2(nList);
                   break;
             case 3:
-                  problem3(nList);
+                  problem3(*allNinjas);
                   break;
             case 4:
                   problem4(nList);
@@ -204,7 +204,7 @@ void problem2(L1List<NinjaInfo_t>& recordList) {
       print(recordList[recordList.getSize() - 1].id);
       cout << "\n";
 }
-void problem3(L1List<NinjaInfo_t>& ninjaList) {
+void problem3(L1List<char*>& ninjaList) {
       cout << "3:";
       int ninjaSize = ninjaList.getSize();
       print(ninjaSize);
@@ -255,28 +255,40 @@ void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {
 void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
       struct Ans
       {
-            NinjaInfo_t lastTime;
-            time_t      returnTime;
+            NinjaInfo_t lastPlace;
+            NinjaInfo_t lastStopPlace;
             bool        first;
+            bool        stop;
 
-            Ans(char* n) : lastTime(n) {
-                  returnTime = 0;
-                  first      = true;
+            Ans(char* n) : lastPlace(n) {
+                  first = true;
+                  stop  = false;
             }
       };
 
       auto findLastStopTime = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
-            if (strcmp(ans->lastTime.id, info.id) != 0)
+            if (strcmp(ans->lastPlace.id, info.id) != 0)
                   return;
 
-            if (ans->first)
+            if (ans->first) {
                   ans->first = false;
+            }
 
-            else if (isStop(ans->lastTime, info))
-                  ans->returnTime = info.timestamp;
+            else if (!ans->stop) {
+                  if (isStop(ans->lastPlace, info)) {
+                        ans->lastStopPlace = ans->lastPlace;
+                        ans->stop          = true;
+                  }
+            }
 
-            ans->lastTime = info;
+            else {
+                  if (!isStop(ans->lastStopPlace, info)) {
+                        ans->stop = false;
+                  }
+            }
+
+            ans->lastPlace = info;
       };
 
       Ans* ans = new Ans(ninja);
@@ -286,7 +298,7 @@ void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
       if (ans->first)
             print(-1);
       else
-            print(ans->returnTime);
+            print(ans->lastStopPlace.timestamp);
       cout << "\n";
 
       delete ans;
@@ -295,28 +307,43 @@ void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
 void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {
       struct Ans
       {
-            NinjaInfo_t lastTime;
+            NinjaInfo_t lastPlace;
+            NinjaInfo_t stopPlace;
             int         timeStop;
             bool        first;
+            bool        stop;
 
-            Ans(char* n) : lastTime(n) {
+            Ans(char* n) : lastPlace(n) {
                   timeStop = 0;
                   first    = true;
+                  stop     = false;
             }
       };
 
       auto findTimeStop = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
-            if (strcmp(ans->lastTime.id, info.id) != 0)
+            if (strcmp(ans->lastPlace.id, info.id) != 0)
                   return;
 
-            if (ans->first)
+            if (ans->first) {
                   ans->first = false;
+            }
 
-            else if (isStop(ans->lastTime, info))
-                  ans->timeStop++;
+            else if (!ans->stop) {
+                  if (isStop(ans->lastPlace, info)) {
+                        ans->stopPlace = ans->lastPlace;
+                        ans->stop      = true;
+                        ans->timeStop++;
+                  }
+            }
 
-            ans->lastTime = info;
+            else {
+                  if (!isStop(ans->stopPlace, info)) {
+                        ans->stop = false;
+                  }
+            }
+
+            ans->lastPlace = info;
       };
 
       Ans* ans = new Ans(ninja);
@@ -560,9 +587,11 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       {
             NinjaInfo_t lastStop;
             double      distance;
+            bool        first;
 
             Ans(const char* c) : lastStop(c) {
                   distance = 0;
+                  first    = true;
             }
       };
 
@@ -572,12 +601,20 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             if (strcmp(ans->lastStop.id, info.id) != 0)
                   return;
 
-            ans->distance += distance(ans->lastStop, info);
-            ans->lastStop = info;
+            if (ans->first) {
+                  ans->first    = false;
+                  ans->lastStop = info;
+            }
+
+            else {
+                  ans->distance += distance(ans->lastStop, info);
+                  ans->lastStop = info;
+            }
       };
 
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
+
       if (ans->distance == 0)
             return 0;
       return ans->distance;
@@ -612,29 +649,49 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
       {
-            NinjaInfo_t lastStop;
+            NinjaInfo_t lastPlace;
+            NinjaInfo_t stopPlace;
             double      time;
+            bool        first;
+            bool        stop;
 
-            Ans(const char* c) : lastStop(c) {
-                  time = 0;
+            Ans(const char* c) : lastPlace(c) {
+                  time  = 0;
+                  first = true;
+                  stop  = false;
             }
       };
 
       auto findDistance = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
 
-            if (strcmp(ans->lastStop.id, info.id) != 0)
+            if (strcmp(ans->lastPlace.id, info.id) != 0)
                   return;
 
-            if (isStop(ans->lastStop, info))
-                  ans->time += timeInterval(ans->lastStop, info);
-            ans->lastStop = info;
+            if (ans->first) {
+                  ans->first = false;
+            }
+
+            else if (!ans->stop) {
+                  if (isStop(ans->lastPlace, info)) {
+                        ans->stopPlace = info;
+                        ans->stop      = true;
+                  }
+            }
+
+            else {
+                  if (!isStop(ans->stopPlace, info)) {
+                        ans->stop = false;
+                        ans->time = timeInterval(ans->stopPlace, info);
+                  }
+            }
+
+            ans->lastPlace = info;
       };
 
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
-      if (ans->time == 0)
-            return 0;
+
       return ans->time;
 }
 
@@ -644,7 +701,6 @@ double* parseTrapPlace(const char* trap) {
       double latB = 0;
       double lonB = 0;
 
-      int    parse       = 1;
       string parseString = "";
       for (unsigned int parse = 1; parse < 17; ++parse) {
             if (parse % 4 == 0) {
