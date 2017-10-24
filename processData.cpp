@@ -50,7 +50,7 @@ double  ThinkingTime(L1List<NinjaInfo_t>&, const char*);
 double* parseTrapPlace(const char*);
 bool    isTrap(NinjaInfo_t&, double[4]);
 bool    isLost();
-bool    isInList(L1List<char*>, const char*);
+bool    isInList(L1List<char*>&, const char*);
 
 // print the result
 void print() {
@@ -162,11 +162,11 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
 
       switch (codeLength) {
             case 1:
-                  args = new char[1];
+                  args = new char[2];
                   strcpy(args, "");
                   return Event.code[0] - '0';
             case 2:
-                  args = new char[1];
+                  args = new char[2];
                   strcpy(args, "");
                   return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
             case 5:
@@ -502,6 +502,8 @@ void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       ninjaList.traverse(findDistanceMax, ans);
 
       print(ans->ninja);
+      delete ans;
+      ans = NULL;
 }
 void problem13(L1List<NinjaInfo_t>& recordList, char* trap) {
 
@@ -599,8 +601,6 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
 
-      if (ans->distance == 0)
-            return 0;
       return ans->distance;
 }
 double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
@@ -626,8 +626,7 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
-      if (ans->time == 0)
-            return 0;
+
       return ans->time;
 }
 double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
@@ -666,7 +665,7 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             else {
                   if (!isStop(ans->lastStopPlace, info)) {
                         ans->stop = false;
-                        ans->time = timeInterval(ans->lastStopPlace, info);
+                        ans->time += timeInterval(ans->lastStopPlace, info);
                   }
             }
 
@@ -676,7 +675,12 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
 
-      return ans->time;
+      double time = ans->time;
+      // cout << ans->lastPlace.id << ": " << setprecision(12) << time << "\n";
+      // delete ans;
+      // ans = NULL;
+
+      return time;
 }
 
 double* parseTrapPlace(const char* trap) {
@@ -756,7 +760,7 @@ bool isLost() {
 }
 
 
-bool isInList(L1List<char*> ninjaList, const char* ninja) {
+bool isInList(L1List<char*>& ninjaList, const char* ninja) {
 
       struct Ans
       {
