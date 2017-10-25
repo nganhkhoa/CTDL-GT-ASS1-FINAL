@@ -637,15 +637,11 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             double      time;
             bool        first;
             bool        stop;
-            int         lastStopPlace_idx;
-            int         idx;
 
             Ans(const char* c) : lastPlace(c) {
-                  time              = 0;
-                  first             = true;
-                  stop              = false;
-                  lastStopPlace_idx = 0;
-                  idx               = -1;
+                  time  = 0;
+                  first = true;
+                  stop  = false;
             }
       };
 
@@ -657,14 +653,12 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
             if (ans->first) {
                   ans->first = false;
-                  ans->idx++;
             }
 
             else if (!ans->stop) {
                   if (isStop(ans->lastPlace, info)) {
-                        ans->lastStopPlace     = ans->lastPlace;
-                        ans->stop              = true;
-                        ans->lastStopPlace_idx = ans->idx;
+                        ans->lastStopPlace = ans->lastPlace;
+                        ans->stop          = true;
                   }
             }
 
