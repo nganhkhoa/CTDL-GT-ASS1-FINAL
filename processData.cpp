@@ -723,14 +723,15 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
 
+      // if he is still stop till end of time
       if (ans->stop) {
             ans->time += timeInterval(ans->lastStopPlace, ans->lastPlace);
       }
 
       double time = ans->time;
       // cout << ans->lastPlace.id << ": " << setprecision(12) << time << "\n";
-      // delete ans;
-      // ans = NULL;
+      delete ans;
+      ans = NULL;
 
       return time;
 }
