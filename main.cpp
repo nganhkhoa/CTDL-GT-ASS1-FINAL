@@ -26,7 +26,11 @@ int main(int narg, char** argv) {
 
       cout << resetiosflags(ios::showbase) << setprecision(-1);
 
-      time_t last = time(NULL);
-      cout << difftime(last, first) << endl;
+      time_t last     = time(NULL);
+      double timespan = difftime(last, first);
+      int    minutes  = timespan / 60;
+      int    seconds  = timespan - 60 * minutes;
+      cout << "Time elapsed: " << minutes << " minutes and " << seconds
+           << " seconds" << endl;
       return 0;
 }
