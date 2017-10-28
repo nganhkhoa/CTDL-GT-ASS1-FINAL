@@ -558,9 +558,6 @@ void problem13(L1List<NinjaInfo_t>& recordList, char* trap) {
             strcpy(id, info.id);
 
             ans->stack->insertHead(id);
-
-            delete id;
-            id = NULL;
       };
 
       Ans* ans = new Ans(TrapPlace);
@@ -742,35 +739,16 @@ double* parseTrapPlace(const char* trap) {
       double latB = 0;
       double lonB = 0;
 
-      string parseString = "";
-      for (unsigned int parse = 1; parse < 17; ++parse) {
-            if (parse % 4 == 0) {
-                  parseString += trap[parse - 1];
-                  parseString = "0." + parseString;
-                  switch (parse / 4) {
-                        case 1:
-                              lonA = stod(parseString);
-                              break;
-                        case 2:
-                              latA = stod(parseString);
-                              break;
-                        case 3:
-                              lonB = stod(parseString);
-                              break;
-                        case 4:
-                              latB = stod(parseString);
-                              break;
-                        default:
-                              break;
-                  }
-                  parseString = "";
-                  continue;
-            }
-            parseString += trap[parse - 1];
+      if (sscanf(trap, "%4lF%4lF%4lF%4lF", &latA, &lonA, &latB, &lonB) != 4) {
+            exit(-3);
       }
 
       // cout << lonA << " " << latA << " " << lonB << " " << latB;
 
+      latA /= 10000;
+      lonA /= 10000;
+      latB /= 10000;
+      lonB /= 10000;
       double* ret = new double[4]{lonA, latA, lonB, latB};
       return ret;
 }
@@ -778,12 +756,12 @@ bool isTrap(NinjaInfo_t& record, double* trapPlace) {
 
       auto sign = [](double d) -> int { return (d < 0) ? -1 : 1; };
 
-      double lonN   = record.longitude - (int) record.longitude;
-      double latN   = record.latitude - (int) record.latitude;
-      double lonA   = trapPlace[0] * sign(lonN);
-      double latA   = trapPlace[1] * sign(latN);
-      double lonB   = trapPlace[2] * sign(lonN);
-      double latB   = trapPlace[3] * sign(latN);
+      double lonN   = record.longitude;
+      double latN   = record.latitude;
+      double lonA   = trapPlace[0] * sign(lonN) + (int) record.longitude;
+      double latA   = trapPlace[1] * sign(latN) + (int) record.latitude;
+      double lonB   = trapPlace[2] * sign(lonN) + (int) record.longitude;
+      double latB   = trapPlace[3] * sign(latN) + (int) record.latitude;
       bool   status = false;
 
       // A left lower --- B right upper
