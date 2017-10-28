@@ -417,6 +417,8 @@ void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             Ans*   ans          = (Ans*) v;
             double maxThisNinja = TotalTime(ans->recordList, ninja);
 
+            //  cout << ninja << ": " << maxThisNinja << endl;
+
             if (ans->maxTime >= maxThisNinja)
                   return;
 
@@ -594,6 +596,14 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
             else {
                   ans->distance += distance(ans->lastStop, info);
+                  // cout << ans->distance << endl;
+                  /*
+                  ans->distance += distanceEarth(
+                     ans->lastStop.latitude,
+                     ans->lastStop.longitude,
+                     info.latitude,
+                     info.longitude);
+                  // */
                   ans->lastStop = info;
             }
       };
@@ -607,10 +617,13 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
       {
             NinjaInfo_t lastStop;
+            time_t      firstTime;
             double      time;
+            bool        first;
 
             Ans(const char* c) : lastStop(c) {
-                  time = 0;
+                  time  = 0;
+                  first = true;
             }
       };
 
@@ -620,6 +633,11 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             if (strcmp(ans->lastStop.id, info.id) != 0)
                   return;
 
+            if (ans->first) {
+                  ans->first     = false;
+                  ans->firstTime = info.timestamp;
+            }
+
             ans->time += timeInterval(ans->lastStop, info);
             ans->lastStop = info;
       };
@@ -627,7 +645,9 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
 
-      return ans->time;
+      cout << ans->lastStop.id << ": " << ans->time - ans->firstTime << endl;
+
+      return ans->time - ans->firstTime;
 }
 double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans

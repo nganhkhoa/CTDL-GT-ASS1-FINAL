@@ -160,6 +160,7 @@ bool initNinjaGlobalData(
 
 
       bList.traverse(getNinjaList, allNinjas);
+      allNinjas.reverse();
 
       return true;
 }
