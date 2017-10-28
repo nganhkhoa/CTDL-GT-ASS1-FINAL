@@ -21,7 +21,7 @@ void problem4(L1List<NinjaInfo_t>&);
 void problem5(L1List<NinjaInfo_t>&, char*);
 void problem6(L1List<NinjaInfo_t>&, char*);
 void problem7(L1List<NinjaInfo_t>&, char*);
-void problem8(L1List<NinjaInfo_t>&, char*);
+void problem8(L1List<NinjaInfo_t>&, L1List<char*>&, char*);
 void problem9(L1List<NinjaInfo_t>&, L1List<char*>&);
 void problem10(L1List<NinjaInfo_t>&, L1List<char*>&);
 void problem11(L1List<char*>&, char*);
@@ -117,7 +117,7 @@ bool processEvent(
                   problem7(nList, args);
                   break;
             case 8:
-                  problem8(nList, args);
+                  problem8(nList, *allNinjas, args);
                   break;
             case 9:
                   problem9(nList, *allNinjas);
@@ -358,13 +358,18 @@ void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {
       delete ans;
       ans = NULL;
 }
-void problem8(L1List<NinjaInfo_t>& recordList, char* ninja) {
-      double distance = TotalDistance(recordList, ninja);
+void problem8(
+   L1List<NinjaInfo_t>& recordList,
+   L1List<char*>&       allNinjas,
+   char*                ninja) {
 
-      if (distance == 0)
+      if (!isInList(allNinjas, ninja)) {
             print(-1);
-      else
-            print(distance);
+            return;
+      }
+
+      double distance = TotalDistance(recordList, ninja);
+      print(distance);
 }
 void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -633,13 +638,14 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
       {
-            NinjaInfo_t lastStop;
-            time_t      firstTime;
-            double      time;
-            bool        first;
+            time_t lastTime;
+            time_t firstTime;
+            char*  ninja;
+            bool   first;
 
-            Ans(const char* c) : lastStop(c) {
-                  time  = 0;
+            Ans(const char* c) {
+                  ninja = new char[strlen(c)];
+                  strcpy(ninja, c);
                   first = true;
             }
       };
@@ -647,7 +653,7 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       auto findDistance = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
 
-            if (strcmp(ans->lastStop.id, info.id) != 0)
+            if (strcmp(ans->ninja, info.id) != 0)
                   return;
 
             if (ans->first) {
@@ -655,8 +661,7 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
                   ans->firstTime = info.timestamp;
             }
 
-            ans->time += timeInterval(ans->lastStop, info);
-            ans->lastStop = info;
+            ans->lastTime = info.timestamp;
       };
 
       Ans* ans = new Ans(ninja);
@@ -664,7 +669,7 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
       // cout << ans->lastStop.id << ": " << ans->time - ans->firstTime << endl;
 
-      double time = ans->time - ans->firstTime;
+      double time = difftime(ans->lastTime, ans->firstTime);
 
       delete ans;
       ans = NULL;
