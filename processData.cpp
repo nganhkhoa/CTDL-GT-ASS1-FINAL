@@ -645,7 +645,7 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
 
-      cout << ans->lastStop.id << ": " << ans->time - ans->firstTime << endl;
+      // cout << ans->lastStop.id << ": " << ans->time - ans->firstTime << endl;
 
       return ans->time - ans->firstTime;
 }

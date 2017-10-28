@@ -95,8 +95,10 @@ bool parseNinjaInfo(char* pBuf, NinjaInfo_t& nInfo) {
 
 
 void process(L1List<ninjaEvent_t>& eventList, L1List<NinjaInfo_t>& bList) {
-      void* pGData = NULL;
-      initNinjaGlobalData(&pGData, eventList, bList);
+      void** pGData = new void*[2];
+      pGData[0]     = &eventList;
+      pGData[1]     = &bList;
+      initNinjaGlobalData(pGData);
 
       while (!eventList.isEmpty()) {
             if (!processEvent(eventList[0], bList, pGData))
@@ -108,13 +110,16 @@ void process(L1List<ninjaEvent_t>& eventList, L1List<NinjaInfo_t>& bList) {
 }
 
 
-bool initNinjaGlobalData(
-   void**                pGData,
-   L1List<ninjaEvent_t>& eventList,
-   L1List<NinjaInfo_t>&  bList) {
+bool initNinjaGlobalData(void** pGData) {
       /// TODO: You should define this function if you would like to use some
       /// extra data
       /// the data should be allocated and pass the address into pGData
+
+      L1List<ninjaEvent_t>* eventList = (L1List<ninjaEvent_t>*) pGData[0];
+      L1List<NinjaInfo_t>*  bList     = (L1List<NinjaInfo_t>*) pGData[1];
+
+      delete[] pGData;
+
       *pGData                    = new L1List<char*>*[2];
       L1List<char*>** listOfList = (L1List<char*>**) *pGData;
 
@@ -128,7 +133,7 @@ bool initNinjaGlobalData(
             allEvents->push_back(copiedCode);
       };
 
-      eventList.traverse(copyEvents, allEvents);
+      eventList->traverse(copyEvents, allEvents);
 
       auto getNinjaList = [](NinjaInfo_t& ninja, void* v) {
             L1List<char*>* allNinjas = (L1List<char*>*) v;
@@ -159,7 +164,7 @@ bool initNinjaGlobalData(
       };
 
 
-      bList.traverse(getNinjaList, allNinjas);
+      bList->traverse(getNinjaList, allNinjas);
       allNinjas->reverse();
 
       return true;
