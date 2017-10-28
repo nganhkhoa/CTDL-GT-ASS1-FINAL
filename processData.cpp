@@ -595,9 +595,9 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             }
 
             else {
-                  ans->distance += distance(ans->lastStop, info);
+                  // ans->distance += distance(ans->lastStop, info);
                   // cout << ans->distance << endl;
-                  /*
+                  //*
                   ans->distance += distanceEarth(
                      ans->lastStop.latitude,
                      ans->lastStop.longitude,
