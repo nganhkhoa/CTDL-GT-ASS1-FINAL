@@ -176,6 +176,8 @@ void releaseNinjaGlobalData(void* pGData) {
       /// The data pointed by pGData should be released
       L1List<char*>** listOfList = (L1List<char*>**) pGData;
       delete[] listOfList;
+      listOfList = NULL;
+      pGData     = NULL;
 }
 
 

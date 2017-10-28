@@ -138,13 +138,13 @@ bool processEvent(
                   problem14(nList, *allNinjas);
                   break;
             default:
-                  delete args;
+                  delete[] args;
                   args = NULL;
                   return false;
       }
 
-      cout << "\n";
-      delete args;
+      cout << endl;
+      delete[] args;
       args = NULL;
       /// NOTE: The output of the event will be printed on one line
       /// end by the endline character.
@@ -165,28 +165,33 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
                   args = new char[2];
                   strcpy(args, "");
                   return Event.code[0] - '0';
+
             case 2:
                   args = new char[2];
                   strcpy(args, "");
                   return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
+
             case 5:
                   args = new char[5];
                   for (int i    = 0; i < 4; ++i)
                         args[i] = Event.code[i + 1];
                   args[4]       = '\0';
                   return Event.code[0] - '0';
+
             case 6:
                   args = new char[5];
                   for (int i    = 0; i < 4; ++i)
                         args[i] = Event.code[i + 2];
                   args[4]       = '\0';
                   return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
+
             case 18:
                   args = new char[17];
                   for (int i    = 0; i < 16; ++i)
                         args[i] = Event.code[i + 2];
                   args[16]      = '\0';
                   return 13;
+
             default:
                   return -1;
       }
@@ -394,6 +399,9 @@ void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       ninjaList.traverse(findDistanceMax, ans);
 
       print(ans->ninja);
+
+      delete ans;
+      ans = NULL;
 }
 void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -430,6 +438,9 @@ void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       ninjaList.traverse(findDistanceMax, ans);
 
       print(ans->ninja);
+
+      delete ans;
+      ans = NULL;
 }
 void problem11(L1List<char*>& ninjaList, char* ninja) {
       struct Ans
@@ -504,6 +515,7 @@ void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       ninjaList.traverse(findDistanceMax, ans);
 
       print(ans->ninja);
+
       delete ans;
       ans = NULL;
 }
@@ -611,7 +623,12 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       Ans* ans = new Ans(ninja);
       recordList.traverse(findDistance, ans);
 
-      return ans->distance;
+      double distance = ans->distance;
+
+      delete ans;
+      ans = NULL;
+
+      return distance;
 }
 double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
@@ -647,7 +664,12 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
       // cout << ans->lastStop.id << ": " << ans->time - ans->firstTime << endl;
 
-      return ans->time - ans->firstTime;
+      double time = ans->time - ans->firstTime;
+
+      delete ans;
+      ans = NULL;
+
+      return time;
 }
 double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
@@ -799,7 +821,7 @@ bool isInList(L1List<char*>& ninjaList, const char* ninja) {
             }
 
             ~Ans() {
-                  delete ninja;
+                  delete[] ninja;
                   ninja = NULL;
             }
       };
@@ -851,4 +873,6 @@ void print(time_t& t) {
       char* time = new char[26];
       strPrintTime(time, t);
       print(time);
+      delete[] time;
+      time = NULL;
 }
