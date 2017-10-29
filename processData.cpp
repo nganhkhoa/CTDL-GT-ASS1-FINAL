@@ -526,6 +526,7 @@ void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
 }
 void problem13(L1List<NinjaInfo_t>& recordList, char* trap) {
 
+      /*
       double* TrapPlace = parseTrapPlace(trap);
 
       struct Ans
@@ -572,6 +573,48 @@ void problem13(L1List<NinjaInfo_t>& recordList, char* trap) {
       delete TrapPlace;
       ans       = NULL;
       TrapPlace = NULL;
+      */
+
+
+      struct Ans {
+            double* trapPlace;
+            L1List<char*>* trapList;
+
+            Ans(double* trap) {
+                  trapPlace = trap;
+                  trapList = new L1List<char*>();
+            }
+
+            ~Ans() {
+                  trapPlace = NULL;
+                  delete trapList;
+            }
+      };
+
+
+      auto TrapNinjaList = [](NinjaInfo_t& info, void* v) {
+            Ans* ans = (Ans*) v;
+
+            if (!isTrap(info, ans->trapPlace))
+                  return;
+
+            if (isInList(*ans->trapList, info.id))
+                  return;
+
+            char* id = new char[strlen(info.id)];
+            strcpy(id, info.id);
+            ans->trapList->insertHead(id);
+      };
+      
+      double* trapPlace = parseTrapPlace(trap);
+
+      Ans* ans = new Ans(trapPlace);
+      recordList.traverse(TrapNinjaList, ans);
+
+      if (ans->trapList->isEmpty())
+            print(-1);
+      else
+            print(*ans->trapList);
 }
 void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {}
 
