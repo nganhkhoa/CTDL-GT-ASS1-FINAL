@@ -118,6 +118,7 @@ bool initNinjaGlobalData(void** pGData) {
       L1List<ninjaEvent_t>* eventList = (L1List<ninjaEvent_t>*) pGData[0];
       L1List<NinjaInfo_t>*  bList     = (L1List<NinjaInfo_t>*) pGData[1];
 
+      /* Delete void* allocated for eventList and bList */
       delete[] pGData;
 
       *pGData                    = new L1List<char*>*[2];
