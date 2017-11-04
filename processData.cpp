@@ -576,13 +576,14 @@ void problem13(L1List<NinjaInfo_t>& recordList, char* trap) {
       */
 
 
-      struct Ans {
-            double* trapPlace;
+      struct Ans
+      {
+            double*        trapPlace;
             L1List<char*>* trapList;
 
             Ans(double* trap) {
                   trapPlace = trap;
-                  trapList = new L1List<char*>();
+                  trapList  = new L1List<char*>();
             }
 
             ~Ans() {
@@ -605,7 +606,7 @@ void problem13(L1List<NinjaInfo_t>& recordList, char* trap) {
             strcpy(id, info.id);
             ans->trapList->insertHead(id);
       };
-      
+
       double* trapPlace = parseTrapPlace(trap);
 
       Ans* ans = new Ans(trapPlace);
@@ -714,7 +715,7 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       delete ans;
       ans = NULL;
 
-      return time;
+      return time - ThinkingTime(recordList, ninja);
 }
 double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
