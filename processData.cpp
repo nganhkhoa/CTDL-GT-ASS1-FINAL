@@ -190,7 +190,7 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
                   for (int i    = 0; i < 16; ++i)
                         args[i] = Event.code[i + 2];
                   args[16]      = '\0';
-                  return 13;
+                  return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
 
             default:
                   return -1;
