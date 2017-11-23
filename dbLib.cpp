@@ -90,6 +90,14 @@ bool parseNinjaInfo(char* pBuf, NinjaInfo_t& nInfo) {
 
       nInfo.timestamp = mktime(&thisTime);
 
+      size_t idlength = strlen(nInfo.id);
+      if (idlength < 4) {
+            memmove(nInfo.id + 4 - idlength, nInfo.id, 4);
+            for (; idlength < 4; ++idlength) {
+                  nInfo.id[4 - idlength - 1] = '0';
+            }
+      }
+
       return true;
 }
 
