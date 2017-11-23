@@ -132,7 +132,10 @@ bool processEvent(
                   problem12(nList, *allNinjas);
                   break;
             case 13:
-                  problem13(nList, args);
+                  delete[] args;
+                  args = NULL;
+                  return false;
+                  // problem13(nList, args);
                   break;
             case 14:
                   problem14(nList, *allNinjas);
@@ -173,23 +176,23 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
 
             case 5:
                   args = new char[5];
-                  for (int i    = 0; i < 4; ++i)
+                  for (int i = 0; i < 4; ++i)
                         args[i] = Event.code[i + 1];
-                  args[4]       = '\0';
+                  args[4] = '\0';
                   return Event.code[0] - '0';
 
             case 6:
                   args = new char[5];
-                  for (int i    = 0; i < 4; ++i)
+                  for (int i = 0; i < 4; ++i)
                         args[i] = Event.code[i + 2];
-                  args[4]       = '\0';
+                  args[4] = '\0';
                   return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
 
             case 18:
                   args = new char[17];
-                  for (int i    = 0; i < 16; ++i)
+                  for (int i = 0; i < 16; ++i)
                         args[i] = Event.code[i + 2];
-                  args[16]      = '\0';
+                  args[16] = '\0';
                   return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
 
             default:
