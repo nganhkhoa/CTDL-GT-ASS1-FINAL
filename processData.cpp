@@ -88,7 +88,7 @@ bool processEvent(
       char* args = nullptr;
       int   code = extractEvent(event, args);
 
-      if (code >= 0 && code <= 14)
+      if (code >= 0 && code <= 14 && code != 13)
             cout << code << args << ":";
 
       switch (code) {
@@ -613,6 +613,7 @@ void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
 
       ninjaList.traverse(getlostlist, ans);
 
+      ans->list.reverse();
       if (ans->list.isEmpty())
             print(-1);
       else
@@ -835,8 +836,106 @@ bool isTrap(NinjaInfo_t& record, double* trapPlace) {
 
       return status;
 }
+
+
+void findloop(L1List<NinjaInfo_t&>& list, bool& ret) {
+      if (ret == true)
+            return;
+
+      NinjaInfo_t& compare_point = list.at(0);
+      list.removeHead();
+
+      struct Find
+      {
+            NinjaInfo_t* compare_point;
+            bool*        ret;
+
+            ~Find() {
+                  compare_point = nullptr;
+                  ret           = nullptr;
+            }
+      };
+
+      auto getloopstatus = [](NinjaInfo_t& info, void* v) {
+            Find* find = (Find*) v;
+
+            if (*find->ret == true)
+                  return;
+
+            if (isStop(*find->compare_point, info))
+                  *find->ret = true;
+      };
+
+      Find* find          = new Find();
+      find->compare_point = &compare_point;
+      find->ret           = &ret;
+
+      list.traverse(getloopstatus, find);
+
+      delete find;
+      find = nullptr;
+}
+
 bool isLost(char*& ninja, L1List<NinjaInfo_t>& recordList) {
-      return false;
+
+      struct Ans
+      {
+            NinjaInfo_t*         laststop;
+            NinjaInfo_t*         lastpoint;
+            bool                 first = true;
+            bool                 stop  = false;
+            char**               ninja;
+            L1List<NinjaInfo_t&> liststop;
+
+            ~Ans() {
+                  laststop  = nullptr;
+                  lastpoint = nullptr;
+                  ninja     = nullptr;
+            }
+      };
+
+      auto getliststop = [](NinjaInfo_t& info, void* v) {
+            Ans* ans = (Ans*) v;
+            if (strcmp(info.id, *ans->ninja) != 0)
+                  return;
+
+            if (ans->first) {
+                  ans->first = false;
+            }
+            else if (!ans->stop) {
+                  if (isStop(*ans->lastpoint, info)) {
+                        ans->laststop = ans->lastpoint;
+                        ans->stop     = true;
+                  }
+                  ans->liststop.insertHead(*ans->lastpoint);
+            }
+            else {
+                  if (!isStop(*ans->laststop, info)) {
+                        ans->stop = false;
+                  }
+            }
+            ans->lastpoint = &info;
+      };
+
+      Ans* ans   = new Ans();
+      ans->ninja = &ninja;
+
+      recordList.traverse(getliststop, ans);
+
+      if (!ans->stop)
+            ans->liststop.insertHead(*ans->lastpoint);
+
+      ans->liststop.removeHead();
+
+      bool ret = false;
+      while (!ans->liststop.isEmpty() && ret == false) {
+            findloop(ans->liststop, ret);
+      }
+
+      delete ans;
+      ans = nullptr;
+
+      return ret;
 }
 
 
