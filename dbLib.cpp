@@ -34,8 +34,6 @@ void loadNinjaDB(char* fName, L1List<NinjaInfo_t>& db) {
       ifstream file(fName, ios::in);
 
       if (!file.is_open()) {
-            cout << "File not found\n";
-            cout << "Exiting\n";
             exit(-1);
       }
 
@@ -49,13 +47,12 @@ void loadNinjaDB(char* fName, L1List<NinjaInfo_t>& db) {
 
             NinjaInfo_t ninja;
             if (!parseNinjaInfo(buffer, ninja)) {
-                  cout << "::::" << buffer << "::::" << endl;
-                  cout << "KILL" << endl;
                   exit(-2);
             }
             db.insertHead(ninja);
       }
       delete[] buffer;
+      buffer = nullptr;
       file.close();
       db.reverse();
 }
@@ -142,8 +139,6 @@ bool initNinjaGlobalData(void** pGData) {
             allEvents->push_back(copiedCode);
       };
 
-      eventList->traverse(copyEvents, allEvents);
-
       auto getNinjaList = [](NinjaInfo_t& ninja, void* v) {
             L1List<char*>* allNinjas = (L1List<char*>*) v;
 
@@ -172,7 +167,7 @@ bool initNinjaGlobalData(void** pGData) {
             }
       };
 
-
+      eventList->traverse(copyEvents, allEvents);
       bList->traverse(getNinjaList, allNinjas);
       allNinjas->reverse();
 
