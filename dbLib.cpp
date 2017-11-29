@@ -85,7 +85,7 @@ bool parseNinjaInfo(char* pBuf, NinjaInfo_t& nInfo) {
       thisTime.tm_mon -= 1;
       thisTime.tm_isdst = -1;
 
-      nInfo.timestamp = mktime(&thisTime);
+      nInfo.timestamp = timegm(&thisTime);
 
       size_t idlength = strlen(nInfo.id);
       if (idlength < 4) {
