@@ -610,7 +610,7 @@ void problem13(L1List<NinjaInfo_t>& recordList, char* trap) {
             if (!isTrap(info, ans->trapPlace))
                   return;
 
-            if (isInList(*ans->trapList, info.id))
+            if (isInList(*ans->trapList, info.id) != -1)
                   return;
 
             char* id = new char[strlen(info.id)];
