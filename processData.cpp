@@ -50,7 +50,7 @@ double  ThinkingTime(L1List<NinjaInfo_t>&, const char*);
 double* parseTrapPlace(const char*);
 bool    isTrap(NinjaInfo_t&, double[4]);
 bool    isLost(char*& ninja, L1List<NinjaInfo_t>& recordList);
-bool    isInList(L1List<char*>&, const char*);
+int     isInList(L1List<char*>&, const char*);
 void    removeNinja(L1List<char*>&, const char*);
 
 // print the result
@@ -999,7 +999,7 @@ bool isLost(char*& ninja, L1List<NinjaInfo_t>& recordList) {
 }
 
 
-bool isInList(L1List<char*>& ninjaList, const char* ninja) {
+int isInList(L1List<char*>& ninjaList, const char* ninja) {
 
       struct Ans
       {
