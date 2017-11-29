@@ -269,8 +269,6 @@ void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {
 
       auto findFirstMove = [](NinjaInfo_t& ninjaRecord, void* v) {
             Ans* ans = (Ans*) v;
-            if (ans->ret)
-                  return;
 
             if (strcmp(*ans->ninja, ninjaRecord.id) != 0)
                   return;
@@ -279,16 +277,20 @@ void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {
                   ans->first = false;
             }
             else if (!ans->stop) {
-                  if (!isStop(*ans->lastpoint, ninjaRecord))
+                  if (!isStop(*ans->lastpoint, ninjaRecord)) {
                         ans->ret = ans->lastpoint->timestamp;
+                        throw true;
+                  }
                   else {
                         ans->laststop = ans->lastpoint;
                         ans->stop     = true;
                   }
             }
             else {
-                  if (!isStop(*ans->laststop, ninjaRecord))
+                  if (!isStop(*ans->laststop, ninjaRecord)) {
                         ans->ret = ninjaRecord.timestamp;
+                        throw true;
+                  }
             }
 
             ans->lastpoint = &ninjaRecord;
@@ -296,31 +298,35 @@ void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {
 
 
       Ans ans(ninja);
-      recordList.traverse(findFirstMove, &ans);
-
-      if (ans.ret != 0)
+      try {
+            recordList.traverse(findFirstMove, &ans);
+      } catch (bool b) {
             print(ans.ret);
-      else
-            print(-1);
+            cout << endl;
+            return;
+      }
+
+      print(-1);
       cout << endl;
 }
 void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
       struct Ans
       {
-            NinjaInfo_t lastPlace;
-            NinjaInfo_t lastStopPlace;
-            bool        first;
-            bool        stop;
+            NinjaInfo_t* lastPlace;
+            NinjaInfo_t* lastStopPlace;
+            bool         first;
+            bool         stop;
 
-            Ans(char* n) : lastPlace(n) {
-                  first = true;
-                  stop  = false;
+            Ans(char* n) {
+                  lastPlace = new NinjaInfo_t(n);
+                  first     = true;
+                  stop      = false;
             }
       };
 
       auto findLastStopTime = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
-            if (strcmp(ans->lastPlace.id, info.id) != 0)
+            if (strcmp(ans->lastPlace->id, info.id) != 0)
                   return;
 
             if (ans->first) {
@@ -328,19 +334,19 @@ void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
             }
 
             else if (!ans->stop) {
-                  if (isStop(ans->lastPlace, info)) {
+                  if (isStop(*ans->lastPlace, info)) {
                         ans->lastStopPlace = ans->lastPlace;
                         ans->stop          = true;
                   }
             }
 
             else {
-                  if (!isStop(ans->lastStopPlace, info)) {
+                  if (!isStop(*ans->lastStopPlace, info)) {
                         ans->stop = false;
                   }
             }
 
-            ans->lastPlace = info;
+            ans->lastPlace = &info;
       };
 
       Ans* ans = new Ans(ninja);
@@ -349,7 +355,7 @@ void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
       if (ans->first)
             print(-1);
       else
-            print(ans->lastStopPlace.timestamp);
+            print(ans->lastStopPlace->timestamp);
 
       cout << endl;
 
@@ -359,22 +365,23 @@ void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
 void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {
       struct Ans
       {
-            NinjaInfo_t lastPlace;
-            NinjaInfo_t stopPlace;
-            int         timeStop;
-            bool        first;
-            bool        stop;
+            NinjaInfo_t* lastPlace;
+            NinjaInfo_t* stopPlace;
+            int          timeStop;
+            bool         first;
+            bool         stop;
 
-            Ans(char* n) : lastPlace(n) {
-                  timeStop = 0;
-                  first    = true;
-                  stop     = false;
+            Ans(char* n) {
+                  lastPlace = new NinjaInfo_t(n);
+                  timeStop  = 0;
+                  first     = true;
+                  stop      = false;
             }
       };
 
       auto findTimeStop = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
-            if (strcmp(ans->lastPlace.id, info.id) != 0)
+            if (strcmp(ans->lastPlace->id, info.id) != 0)
                   return;
 
             if (ans->first) {
@@ -382,7 +389,7 @@ void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {
             }
 
             else if (!ans->stop) {
-                  if (isStop(ans->lastPlace, info)) {
+                  if (isStop(*ans->lastPlace, info)) {
                         ans->stopPlace = ans->lastPlace;
                         ans->stop      = true;
                         ans->timeStop++;
@@ -390,12 +397,12 @@ void problem7(L1List<NinjaInfo_t>& recordList, char* ninja) {
             }
 
             else {
-                  if (!isStop(ans->stopPlace, info)) {
+                  if (!isStop(*ans->stopPlace, info)) {
                         ans->stop = false;
                   }
             }
 
-            ans->lastPlace = info;
+            ans->lastPlace = &info;
       };
 
       Ans* ans = new Ans(ninja);
@@ -415,14 +422,8 @@ void problem8(
    L1List<NinjaInfo_t>& recordList,
    L1List<char*>&       allNinjas,
    char*                ninja) {
-
-      if (!isInList(allNinjas, ninja)) {
-            print(-1);
-            return;
-      }
-
       double distance = TotalDistance(recordList, ninja);
-      print(distance);
+      print(distance ? distance : -1);
       cout << endl;
 }
 void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
@@ -678,11 +679,12 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
       struct Ans
       {
-            NinjaInfo_t lastStop;
-            double      distance;
-            bool        first;
+            NinjaInfo_t* lastStop;
+            double       distance;
+            bool         first;
 
-            Ans(const char* c) : lastStop(c) {
+            Ans(const char* c) {
+                  lastStop = new NinjaInfo_t(c);
                   distance = 0;
                   first    = true;
             }
@@ -691,12 +693,11 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       auto findDistance = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
 
-            if (strcmp(ans->lastStop.id, info.id) != 0)
+            if (strcmp(ans->lastStop->id, info.id) != 0)
                   return;
 
             if (ans->first) {
-                  ans->first    = false;
-                  ans->lastStop = info;
+                  ans->first = false;
             }
 
             else {
@@ -704,13 +705,13 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
                   // cout << ans->distance << endl;
                   //*
                   ans->distance += distanceEarth(
-                     ans->lastStop.latitude,
-                     ans->lastStop.longitude,
+                     ans->lastStop->latitude,
+                     ans->lastStop->longitude,
                      info.latitude,
                      info.longitude);
                   // */
-                  ans->lastStop = info;
             }
+            ans->lastStop = &info;
       };
 
       Ans* ans = new Ans(ninja);
@@ -726,22 +727,31 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
       {
-            time_t lastTime;
-            time_t firstTime;
-            char*  ninja;
-            bool   first;
+            NinjaInfo_t* lastPlace;
+            NinjaInfo_t* lastStopPlace;
+            double       ThinkingTime;
+            time_t       firstTime;
+            bool         first;
+            bool         stop;
 
             Ans(const char* c) {
-                  ninja = new char[strlen(c)];
-                  strcpy(ninja, c);
-                  first = true;
+                  lastPlace    = new NinjaInfo_t(c);
+                  ThinkingTime = 0;
+                  firstTime    = 0;
+                  first        = true;
+                  stop         = false;
+            }
+
+            ~Ans() {
+                  lastPlace     = nullptr;
+                  lastStopPlace = nullptr;
             }
       };
 
-      auto findDistance = [](NinjaInfo_t& info, void* v) {
+      auto findTotalTime = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
 
-            if (strcmp(ans->ninja, info.id) != 0)
+            if (strcmp(ans->lastPlace->id, info.id) != 0)
                   return;
 
             if (ans->first) {
@@ -749,41 +759,67 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
                   ans->firstTime = info.timestamp;
             }
 
-            ans->lastTime = info.timestamp;
+            else if (!ans->stop) {
+                  if (isStop(*ans->lastPlace, info)) {
+                        ans->lastStopPlace = ans->lastPlace;
+                        ans->stop          = true;
+                  }
+            }
+
+            else {
+                  if (!isStop(*ans->lastStopPlace, info)) {
+                        ans->stop = false;
+                        ans->ThinkingTime +=
+                           timeInterval(*ans->lastStopPlace, *ans->lastPlace);
+                  }
+            }
+
+            ans->lastPlace = &info;
       };
 
       Ans* ans = new Ans(ninja);
-      recordList.traverse(findDistance, ans);
+      recordList.traverse(findTotalTime, ans);
 
-      // cout << ans->lastStop.id << ": " << ans->time - ans->firstTime << endl;
+      // if he is still stop till end of time
+      if (ans->stop) {
+            ans->ThinkingTime +=
+               timeInterval(*ans->lastStopPlace, *ans->lastPlace);
+      }
 
-      double time = difftime(ans->lastTime, ans->firstTime);
+      double time = difftime(ans->lastPlace->timestamp, ans->firstTime) -
+                    ans->ThinkingTime;
 
       delete ans;
       ans = nullptr;
 
-      return time - ThinkingTime(recordList, ninja);
+      return time;
 }
 double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
       struct Ans
       {
-            NinjaInfo_t lastPlace;
-            NinjaInfo_t lastStopPlace;
-            double      time;
-            bool        first;
-            bool        stop;
+            NinjaInfo_t* lastPlace;
+            NinjaInfo_t* lastStopPlace;
+            double       time;
+            bool         first;
+            bool         stop;
 
-            Ans(const char* c) : lastPlace(c) {
-                  time  = 0;
-                  first = true;
-                  stop  = false;
+            Ans(const char* c) {
+                  lastPlace = new NinjaInfo_t(c);
+                  time      = 0;
+                  first     = true;
+                  stop      = false;
+            }
+
+            ~Ans() {
+                  lastPlace     = nullptr;
+                  lastStopPlace = nullptr;
             }
       };
 
-      auto findDistance = [](NinjaInfo_t& info, void* v) {
+      auto findThinkingTime = [](NinjaInfo_t& info, void* v) {
             Ans* ans = (Ans*) v;
 
-            if (strcmp(ans->lastPlace.id, info.id) != 0)
+            if (strcmp(ans->lastPlace->id, info.id) != 0)
                   return;
 
             if (ans->first) {
@@ -791,34 +827,34 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             }
 
             else if (!ans->stop) {
-                  if (isStop(ans->lastPlace, info)) {
+                  if (isStop(*ans->lastPlace, info)) {
                         ans->lastStopPlace = ans->lastPlace;
                         ans->stop          = true;
                   }
             }
 
             else {
-                  if (!isStop(ans->lastStopPlace, info)) {
+                  if (!isStop(*ans->lastStopPlace, info)) {
                         ans->stop = false;
                         ans->time +=
-                           timeInterval(ans->lastStopPlace, ans->lastPlace);
+                           timeInterval(*ans->lastStopPlace, *ans->lastPlace);
                   }
             }
 
-            ans->lastPlace = info;
+            ans->lastPlace = &info;
 
       };
 
       Ans* ans = new Ans(ninja);
-      recordList.traverse(findDistance, ans);
+      recordList.traverse(findThinkingTime, ans);
 
       // if he is still stop till end of time
       if (ans->stop) {
-            ans->time += timeInterval(ans->lastStopPlace, ans->lastPlace);
+            ans->time += timeInterval(*ans->lastStopPlace, *ans->lastPlace);
       }
 
       double time = ans->time;
-      // cout << ans->lastPlace.id << ": " << setprecision(12) << time << "\n";
+
       delete ans;
       ans = nullptr;
 
@@ -879,43 +915,21 @@ bool isTrap(NinjaInfo_t& record, double* trapPlace) {
       return status;
 }
 
-
-void findloop(L1List<NinjaInfo_t&>& list, bool& ret) {
-      if (ret == true)
-            return;
-
-      NinjaInfo_t& compare_point = list.at(0);
+// throw true on found loop
+void findloop(L1List<NinjaInfo_t&>& list) {
+      NinjaInfo_t* compare_point = &list.at(0);
       list.removeHead();
 
-      struct Find
-      {
-            NinjaInfo_t* compare_point;
-            bool*        ret;
+      auto getloopstatus = [](NinjaInfo_t& info, void* v) {
+            NinjaInfo_t* compare_point = (NinjaInfo_t*) v;
 
-            ~Find() {
+            if (isStop(*compare_point, info)) {
                   compare_point = nullptr;
-                  ret           = nullptr;
+                  throw true;
             }
       };
 
-      auto getloopstatus = [](NinjaInfo_t& info, void* v) {
-            Find* find = (Find*) v;
-
-            if (*find->ret == true)
-                  return;
-
-            if (isStop(*find->compare_point, info))
-                  *find->ret = true;
-      };
-
-      Find* find          = new Find();
-      find->compare_point = &compare_point;
-      find->ret           = &ret;
-
-      list.traverse(getloopstatus, find);
-
-      delete find;
-      find = nullptr;
+      list.traverse(getloopstatus, compare_point);
 }
 
 bool isLost(char*& ninja, L1List<NinjaInfo_t>& recordList) {
@@ -969,15 +983,19 @@ bool isLost(char*& ninja, L1List<NinjaInfo_t>& recordList) {
 
       // ans->liststop.removeHead();
 
-      bool ret = false;
-      while (!ans->liststop.isEmpty() && ret == false) {
-            findloop(ans->liststop, ret);
+      while (!ans->liststop.isEmpty()) {
+            try {
+                  findloop(ans->liststop);
+            } catch (bool b) {
+                  delete ans;
+                  ans = nullptr;
+                  return true;
+            }
       }
 
       delete ans;
       ans = nullptr;
-
-      return ret;
+      return false;
 }
 
 
@@ -986,14 +1004,12 @@ bool isInList(L1List<char*>& ninjaList, const char* ninja) {
       struct Ans
       {
             char* ninja;
-            bool  status;
             int   index;
 
             Ans(const char* c) {
                   ninja = new char[strlen(c)];
                   strcpy(ninja, c);
-                  status = false;
-                  index  = -1;
+                  index = -1;
             }
 
             ~Ans() {
@@ -1005,23 +1021,28 @@ bool isInList(L1List<char*>& ninjaList, const char* ninja) {
       auto findNinja = [](char*& ninjaInList, void* v) {
             Ans* ans = (Ans*) v;
 
-            if (ans->status == false)
-                  ans->index++;
+            ans->index++;
 
             if (strcmp(ninjaInList, ans->ninja) == 0) {
-                  ans->status = true;
+                  throw true;
             }
       };
 
       Ans* ans = new Ans(ninja);
 
-      ninjaList.traverse(findNinja, ans);
+      try {
+            ninjaList.traverse(findNinja, ans);
+      } catch (bool b) {
+            int index = ans->index;
+            delete ans;
+            ans = nullptr;
+            return index;
+      }
 
-      int index = (ans->status) ? ans->index : -1;
       delete ans;
       ans = nullptr;
 
-      return index;
+      return -1;
 }
 
 void removeNinja(L1List<char*>& ninjaList, const char* ninja) {
