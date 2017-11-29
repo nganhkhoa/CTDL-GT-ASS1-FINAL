@@ -51,6 +51,7 @@ double* parseTrapPlace(const char*);
 bool    isTrap(NinjaInfo_t&, double[4]);
 bool    isLost(char*& ninja, L1List<NinjaInfo_t>& recordList);
 bool    isInList(L1List<char*>&, const char*);
+void    removeNinja(L1List<char*>&, const char*);
 
 // print the result
 void print() {
@@ -497,8 +498,10 @@ void problem11(L1List<char*>& ninjaList, char* ninja) {
 
       if (strcmp(ans->attackedNinja, "") == 0)
             print(-1);
-      else
+      else {
             print(ans->attackedNinja);
+            removeNinja(ninjaList, ans->attackedNinja);
+      }
 
       cout << endl;
 
@@ -945,11 +948,13 @@ bool isInList(L1List<char*>& ninjaList, const char* ninja) {
       {
             char* ninja;
             bool  status;
+            int   index;
 
             Ans(const char* c) {
                   ninja = new char[strlen(c)];
                   strcpy(ninja, c);
                   status = false;
+                  index  = -1;
             }
 
             ~Ans() {
@@ -961,6 +966,9 @@ bool isInList(L1List<char*>& ninjaList, const char* ninja) {
       auto findNinja = [](char*& ninjaInList, void* v) {
             Ans* ans = (Ans*) v;
 
+            if (ans->status == false)
+                  ans->index++;
+
             if (strcmp(ninjaInList, ans->ninja) == 0) {
                   ans->status = true;
             }
@@ -970,13 +978,17 @@ bool isInList(L1List<char*>& ninjaList, const char* ninja) {
 
       ninjaList.traverse(findNinja, ans);
 
-      bool status = ans->status;
+      int index = (ans->status) ? ans->index : -1;
       delete ans;
       ans = nullptr;
 
-      return status;
+      return index;
 }
 
+void removeNinja(L1List<char*>& ninjaList, const char* ninja) {
+      int index = isInList(ninjaList, ninja);
+      ninjaList.remove(index);
+}
 
 //
 // ──────────────────────────────────────────────────────────────── III

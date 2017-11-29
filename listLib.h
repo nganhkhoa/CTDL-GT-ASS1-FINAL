@@ -66,8 +66,8 @@ class L1List {
       T& operator[](int i);
 
       bool find(T& a, int& idx);
-      int insert(int i, T& a);
-      int remove(int i);
+      int  insert(int i, T& a);
+      int  remove(int i);
 
       int push_back(T& a);
       int insertHead(T& a);
@@ -103,7 +103,7 @@ int L1List<T>::push_back(T& a) {
       else {
             L1Item<T>* p = _pHead;
             while (p->pNext)
-                  p  = p->pNext;
+                  p = p->pNext;
             p->pNext = new L1Item<T>(a);
       }
 
@@ -159,6 +159,30 @@ int L1List<T>::removeLast() {
             return 0;
       }
       return -1;
+}
+
+template <class T>
+int L1List<T>::remove(int i) {
+      if (i < 0 || i >= (int) getSize()) {
+            return -1;
+      }
+
+      if (i == 0)
+            return removeHead();
+
+      auto temp = _pHead;
+      while (--i) {
+            temp = temp->pNext;
+      }
+
+      auto removeThis = temp->pNext;
+      temp->pNext     = removeThis->pNext;
+      delete removeThis;
+      removeThis = nullptr;
+      temp       = nullptr;
+
+      _size--;
+      return 0;
 }
 
 
