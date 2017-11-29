@@ -241,29 +241,68 @@ void problem4(L1List<NinjaInfo_t>& ninjaList) {
       maxId = nullptr;
 }
 void problem5(L1List<NinjaInfo_t>& recordList, char* ninja) {
-      auto findFirstShowUp = [](NinjaInfo_t& ninjaRecord, void* v) {
-            NinjaInfo_t* ans = (NinjaInfo_t*) v;
-            if (strcmp(ans->id, "") == 0)
-                  return;
+      struct Ans
+      {
+            char**       ninja;
+            time_t       ret;
+            NinjaInfo_t* lastpoint;
+            NinjaInfo_t* laststop;
+            bool         first;
+            bool         stop;
 
-            if (strcmp(ans->id, ninjaRecord.id) == 0) {
-                  ans->timestamp = ninjaRecord.timestamp;
-                  strcpy(ans->id, "");
+            Ans(char* n) {
+                  ninja     = &n;
+                  lastpoint = nullptr;
+                  laststop  = nullptr;
+                  first     = true;
+                  stop      = false;
+                  ret       = 0;
+            }
+
+            ~Ans() {
+                  ninja     = nullptr;
+                  lastpoint = nullptr;
+                  laststop  = nullptr;
             }
       };
 
-      NinjaInfo_t* ans = new NinjaInfo_t(ninja);
-      recordList.traverse(findFirstShowUp, ans);
 
-      if (strcmp(ans->id, "") == 0)
-            print(ans->timestamp);
+      auto findFirstMove = [](NinjaInfo_t& ninjaRecord, void* v) {
+            Ans* ans = (Ans*) v;
+            if (ans->ret)
+                  return;
+
+            if (strcmp(*ans->ninja, ninjaRecord.id) != 0)
+                  return;
+
+            if (ans->first) {
+                  ans->first = false;
+            }
+            else if (!ans->stop) {
+                  if (!isStop(*ans->lastpoint, ninjaRecord))
+                        ans->ret = ans->lastpoint->timestamp;
+                  else {
+                        ans->laststop = ans->lastpoint;
+                        ans->stop     = true;
+                  }
+            }
+            else {
+                  if (!isStop(*ans->laststop, ninjaRecord))
+                        ans->ret = ninjaRecord.timestamp;
+            }
+
+            ans->lastpoint = &ninjaRecord;
+      };
+
+
+      Ans ans(ninja);
+      recordList.traverse(findFirstMove, &ans);
+
+      if (ans.ret != 0)
+            print(ans.ret);
       else
             print(-1);
-
       cout << endl;
-
-      delete ans;
-      ans = nullptr;
 }
 void problem6(L1List<NinjaInfo_t>& recordList, char* ninja) {
       struct Ans
