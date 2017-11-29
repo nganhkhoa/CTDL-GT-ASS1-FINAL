@@ -925,7 +925,7 @@ bool isLost(char*& ninja, L1List<NinjaInfo_t>& recordList) {
       if (!ans->stop)
             ans->liststop.insertHead(*ans->lastpoint);
 
-      ans->liststop.removeHead();
+      // ans->liststop.removeHead();
 
       bool ret = false;
       while (!ans->liststop.isEmpty() && ret == false) {
