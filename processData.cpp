@@ -375,6 +375,7 @@ void problem7(L1List<NinjaInfo_t>& recordList, char*& ninja) {
 
             Ans(char* n) {
                   lastPlace = nullptr;
+                  stopPlace = nullptr;
                   ninja     = &n;
                   timeStop  = 0;
                   first     = true;
@@ -716,12 +717,13 @@ double TotalTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             bool         stop;
 
             Ans(const char* c) {
-                  lastPlace    = nullptr;
-                  ninja        = &c;
-                  ThinkingTime = 0;
-                  firstTime    = 0;
-                  first        = true;
-                  stop         = false;
+                  lastPlace     = nullptr;
+                  lastStopPlace = nullptr;
+                  ninja         = &c;
+                  ThinkingTime  = 0;
+                  firstTime     = 0;
+                  first         = true;
+                  stop          = false;
             }
 
             ~Ans() {
@@ -783,11 +785,12 @@ double ThinkingTime(L1List<NinjaInfo_t>& recordList, const char* ninja) {
             bool         stop;
 
             Ans(const char* c) {
-                  lastPlace = nullptr;
-                  ninja     = &c;
-                  time      = 0;
-                  first     = true;
-                  stop      = false;
+                  lastPlace     = nullptr;
+                  lastStopPlace = nullptr;
+                  ninja         = &c;
+                  time          = 0;
+                  first         = true;
+                  stop          = false;
             }
 
             ~Ans() {
