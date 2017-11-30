@@ -134,9 +134,9 @@ bool initNinjaGlobalData(void** pGData) {
 
       auto copyEvents = [](ninjaEvent_t& event, void* v) {
             L1List<char*>* allEvents  = (L1List<char*>*) v;
-            char*          copiedCode = new char[strlen(event.code) + 1];
+            char*          copiedCode = new char[EVENT_CODE_SIZE];
             strcpy(copiedCode, event.code);
-            allEvents->push_back(copiedCode);
+            allEvents->insertHead(copiedCode);
       };
 
       auto getNinjaList = [](NinjaInfo_t& ninja, void* v) {
@@ -144,30 +144,26 @@ bool initNinjaGlobalData(void** pGData) {
 
             auto findExistingNinja = [](char*& ninja, void* v) {
                   char* ninjaTobeFound = (char*) v;
-                  if (ninjaTobeFound == NULL)
-                        return;
                   if (strcmp(ninja, ninjaTobeFound) == 0) {
-                        ninjaTobeFound[0] = '\0';
+                        throw true;
                   }
             };
 
 
-            char* thisNinjaTag = new char[strlen(ninja.id) + 1];
+            char* thisNinjaTag = new char[ID_MAX_LENGTH];
             strcpy(thisNinjaTag, ninja.id);
-            allNinjas->traverse(findExistingNinja, thisNinjaTag);
 
-            if (thisNinjaTag[0] == '\0') {
-                  // found
+            try {
+                  allNinjas->traverse(findExistingNinja, thisNinjaTag);
+            } catch (bool b) {
+                  // somehow find in list
                   return;
             }
-            else {
-                  char* thisNinjaTag = new char[strlen(ninja.id) + 1];
-                  strcpy(thisNinjaTag, ninja.id);
-                  allNinjas->insertHead(thisNinjaTag);
-            }
+            allNinjas->insertHead(thisNinjaTag);
       };
 
       eventList->traverse(copyEvents, allEvents);
+      allEvents->reverse();
       bList->traverse(getNinjaList, allNinjas);
       allNinjas->reverse();
 
