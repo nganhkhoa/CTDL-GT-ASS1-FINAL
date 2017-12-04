@@ -1,0 +1,120 @@
+Archive:  src.zip
+  inflating: dbLib.cpp               
+  inflating: dbLib.h                 
+  inflating: eventLib.cpp            
+  inflating: eventLib.h              
+  inflating: listLib.h               
+  inflating: processData.cpp         
+Compiling 
+g++ dbLib.cpp -c -std=c++11 -DAVL_USE_HEIGHT -DUSE_CUSTOM_COMPARE -DUSE_HASH
+g++ eventLib.cpp -c -std=c++11 -DAVL_USE_HEIGHT -DUSE_CUSTOM_COMPARE -DUSE_HASH
+g++ main.cpp -c -std=c++11 -DAVL_USE_HEIGHT -DUSE_CUSTOM_COMPARE -DUSE_HASH
+g++ processData.cpp -c -std=c++11 -DAVL_USE_HEIGHT -DUSE_CUSTOM_COMPARE -DUSE_HASH
+g++ dbLib.o eventLib.o main.o processData.o -std=c++11 -DAVL_USE_HEIGHT -DUSE_CUSTOM_COMPARE -DUSE_HASH -o dsa171a1
+Running...
+
+Testcase 1 [.689274489]: PASSED
+Testcase 2 [.773496317]: PASSED
+Testcase 3 [1.114822823]: PASSED
+Testcase 4 [.932322197]: PASSED
+Testcase 5 [1.408170147]: PASSED
+Testcase 6 [1.369196361]: PASSED
+Testcase 7 [1.439132377]: PASSED
+Testcase 8 [1.369559393]: PASSED
+Testcase 9 [1.367216422]: PASSED
+Testcase 10 [.717823659]: PASSED
+Testcase 11 [.783730326]: PASSED
+Testcase 14 [.978662780]: PASSED
+Testcase 15 [.783658009]: PASSED
+Testcase 16 [.971592627]: PASSED
+Testcase 17 [.901272768]: PASSED
+Testcase 18 [.733100424]: PASSED
+Testcase 19 [.866614411]: PASSED
+Testcase 20 [.876861902]: PASSED
+Testcase 21 [.826791744]: PASSED
+Testcase 22 [.871605655]: PASSED
+Testcase 23 [.687049675]: PASSED
+Testcase 24 [.866834757]: PASSED
+Testcase 25 [.699102219]: PASSED
+Testcase 26 [.918515240]: PASSED
+Testcase 27 [1.005144256]: PASSED
+Testcase 28 [.952807596]: PASSED
+Testcase 30 [.770757322]: PASSED
+Testcase 31 [.840345402]: PASSED
+Testcase 32 [.713926335]: PASSED
+Testcase 33 [.878997252]: PASSED
+Testcase 34 [.697926274]: PASSED
+Testcase 35 [.878282659]: PASSED
+Testcase 36 [.695824077]: PASSED
+Testcase 37 [.858476144]: PASSED
+Testcase 38 [.780015840]: PASSED
+Testcase 39 [.963303588]: PASSED
+Testcase 40 [.835776781]: PASSED
+Testcase 41 [1.075634941]: PASSED
+Testcase 42 [1.068580316]: PASSED
+Testcase 43 [.938507406]: PASSED
+Testcase 44 [1.170394210]: PASSED
+Testcase 45 [1.119227219]: PASSED
+Testcase 46 [.699126282]: PASSED
+Testcase 47 [.974408872]: PASSED
+Testcase 49 [1.048888426]: PASSED
+Testcase 50 [1.218994401]: PASSED
+Testcase 52 [1.450085749]: PASSED
+Testcase 53 [1.424278334]: PASSED
+Testcase 54 [1.420919327]: PASSED
+Testcase 56 [1.456172988]: PASSED
+Testcase 57 [1.424162730]: PASSED
+Testcase 59 [1.358407570]: PASSED
+Testcase 60 [1.344059070]: PASSED
+Testcase 61 [1.861980141]: PASSED
+Testcase 62 [1.974112427]: PASSED
+Testcase 63 [1.957614751]: PASSED
+Testcase 64 [1.825850697]: PASSED
+Testcase 65 [2.282347978]: PASSED
+Testcase 66 [1.738494504]: PASSED
+Testcase 67 [1.965242103]: PASSED
+Testcase 68 [2.008025944]: PASSED
+Testcase 69 [2.119167155]: PASSED
+Testcase 71 [2.018557369]: PASSED
+Testcase 72 [1.405447369]: PASSED
+Testcase 73 [1.766160277]: PASSED
+Testcase 74 [2.304133230]: PASSED
+Testcase 75 [1.378974448]: PASSED
+Testcase 77 [2.015196709]: PASSED
+Testcase 78 [1.780609999]: PASSED
+Testcase 79 [1.811057007]: PASSED
+Testcase 81 [1.360143418]: PASSED
+Testcase 85 [1.594581487]: PASSED
+Testcase 86 [1.614737435]: PASSED
+Testcase 87 [1.589113742]: PASSED
+Testcase 89 [1.609154971]: PASSED
+
+
+
+Testcase 12 [.844481704]: FAILED
+Testcase 13 [.708196295]: FAILED
+Testcase 29 [.872029201]: FAILED
+Testcase 48 [.726039140]: FAILED
+Testcase 51 [1.456106912]: FAILED
+Testcase 55 [1.415068425]: FAILED
+Testcase 58 [1.366188370]: FAILED
+Testcase 70 [2.086756115]: FAILED
+Testcase 76 [1.794144407]: FAILED
+Testcase 80 [1.588301661]: FAILED
+Testcase 82 [1.405090698]: FAILED
+Testcase 83 [1.547215486]: FAILED
+Testcase 84 [1.419166497]: FAILED
+Testcase 88 [1.799185173]: FAILED
+Testcase 90 [2.022986139]: FAILED
+Testcase 91 [2.403950840]: FAILED
+Testcase 92 [2.591203830]: FAILED
+Testcase 93 [3.412092864]: FAILED
+Testcase 94 [2.218464840]: FAILED
+Testcase 95 [2.592884961]: FAILED
+Testcase 96 [1.362974537]: FAILED
+Testcase 97 [2.268202580]: FAILED
+Testcase 98 [1.940631704]: FAILED
+Testcase 99 [2.642231055]: FAILED
+Testcase 100 [1.501474402]: FAILED
+Total:  75
+

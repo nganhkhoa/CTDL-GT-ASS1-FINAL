@@ -130,10 +130,9 @@ bool processEvent(
                   problem12(nList, *allNinjas);
                   break;
             case 13:
-                  delete[] args;
-                  args = nullptr;
                   return false;
-                  // problem13(nList, args);
+                  break;
+            case -13:
                   break;
             case 14:
                   problem14(nList, *allNinjas);
@@ -160,6 +159,10 @@ bool processEvent(
 int extractEvent(ninjaEvent_t& Event, char*& args) {
       int codeLength = strlen(Event.code);
 
+      // 13...
+      if (Event.code[0] == '1' && Event.code[1] == '3' && Event.code[2] != '\0')
+            return -13;
+
       switch (codeLength) {
             case 1:
                   args = new char[2];
@@ -185,13 +188,6 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
                   args[4] = '\0';
                   return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
 
-            case 18:
-                  args = new char[17];
-                  for (int i = 0; i < 16; ++i)
-                        args[i] = Event.code[i + 2];
-                  args[16] = '\0';
-                  return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
-
             default:
                   return -1;
       }
@@ -205,34 +201,51 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
 
 void problem0(L1List<char*>& allEvents) {
       print(allEvents);
-      cout << endl;
+      cout << "\n";
 }
 void problem1(L1List<NinjaInfo_t>& recordList) {
-      print(recordList[0].id);
-      cout << endl;
+      if (recordList.isEmpty())
+            print("empty");
+      else
+            print(recordList[0].id);
+      cout << "\n";
 }
 void problem2(L1List<NinjaInfo_t>& recordList) {
-      print(recordList[recordList.getSize() - 1].id);
-      cout << endl;
+      if (recordList.isEmpty())
+            print("empty");
+      else
+            print(recordList[recordList.getSize() - 1].id);
+      cout << "\n";
 }
 void problem3(L1List<char*>& ninjaList) {
       print((int) ninjaList.getSize());
-      cout << endl;
+      cout << "\n";
 }
 void problem4(L1List<char*>& ninjaList) {
-      char** maxId = new char*();
-      *maxId       = ninjaList.at(0);
-
       auto findMaxId = [](char*& ninja, void* v) {
             char** maxId = (char**) v;
+            if (*maxId == nullptr) {
+                  *maxId = ninja;
+                  return;
+            }
             if (strcmp(ninja, *maxId) > 0)
                   *maxId = ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print("empty");
+            cout << "\n";
+            return;
+      }
+
+      char** maxId = new char*();
       ninjaList.traverse(findMaxId, maxId);
 
-      print(*maxId);
-      cout << endl;
+      if (*maxId)
+            print(*maxId);
+      else
+            print("empty");
+      cout << "\n";
       delete maxId;
       maxId = nullptr;
 }
@@ -298,12 +311,12 @@ void problem5(L1List<NinjaInfo_t>& recordList, char*& ninja) {
             recordList.traverse(findFirstMove, &ans);
       } catch (bool b) {
             print(ans.ret);
-            cout << endl;
+            cout << "\n";
             return;
       }
 
       print(-1);
-      cout << endl;
+      cout << "\n";
 }
 void problem6(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       struct Ans
@@ -361,7 +374,7 @@ void problem6(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       else
             print(ans.lastStopPlace->timestamp);
 
-      cout << endl;
+      cout << "\n";
 }
 void problem7(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       struct Ans
@@ -422,7 +435,7 @@ void problem7(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       else
             print(ans.timeStop);
 
-      cout << endl;
+      cout << "\n";
 }
 void problem8(
    L1List<NinjaInfo_t>& recordList,
@@ -430,7 +443,7 @@ void problem8(
    char*&               ninja) {
       double distance = TotalDistance(recordList, ninja);
       print(distance ? distance : -1);
-      cout << endl;
+      cout << "\n";
 }
 void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -460,11 +473,17 @@ void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             ans->ninja       = &ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(recordList);
       ninjaList.traverse(findDistanceMax, &ans);
 
       print(*ans.ninja);
-      cout << endl;
+      cout << "\n";
 }
 void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -488,7 +507,7 @@ void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             Ans*   ans          = (Ans*) v;
             double maxThisNinja = TotalTime(ans->recordList, ninja);
 
-            //  cout << ninja << ": " << maxThisNinja << endl;
+            //  cout << ninja << ": " << maxThisNinja << "\n";
 
             if (ans->maxTime >= maxThisNinja)
                   return;
@@ -497,11 +516,17 @@ void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             *ans->ninja  = ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(recordList);
       ninjaList.traverse(findDistanceMax, &ans);
 
       print(*ans.ninja);
-      cout << endl;
+      cout << "\n";
 }
 void problem11(L1List<char*>& ninjaList, char*& ninja) {
       struct Ans
@@ -530,6 +555,12 @@ void problem11(L1List<char*>& ninjaList, char*& ninja) {
             }
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(ninja);
       ninjaList.traverse(findAttackedNinja, &ans);
 
@@ -539,7 +570,7 @@ void problem11(L1List<char*>& ninjaList, char*& ninja) {
             print(*ans.attackedNinja);
             removeNinja(ninjaList, *ans.attackedNinja);
       }
-      cout << endl;
+      cout << "\n";
 }
 void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -570,11 +601,17 @@ void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             *ans->ninja  = ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(recordList);
       ninjaList.traverse(findDistanceMax, &ans);
 
       print(*ans.ninja);
-      cout << endl;
+      cout << "\n";
 }
 void problem13(L1List<NinjaInfo_t>& recordList, char*& trap) {
       struct Ans
@@ -618,7 +655,7 @@ void problem13(L1List<NinjaInfo_t>& recordList, char*& trap) {
       else
             print(*ans->trapList);
 
-      cout << endl;
+      cout << "\n";
 }
 void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
 
@@ -638,6 +675,12 @@ void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
                   ans->list.insertHead(ninja);
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans;
       ans.recordList = &recordList;
 
@@ -648,7 +691,7 @@ void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             print(-1);
       else
             print(ans.list);
-      cout << endl;
+      cout << "\n";
 }
 
 
@@ -688,7 +731,7 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
             else {
                   // ans->distance += distance(ans->lastStop, info);
-                  // cout << ans->distance << endl;
+                  // cout << ans->distance << "\n";
                   //*
                   ans->distance += distanceEarth(
                      ans->lastStop->latitude,
@@ -956,8 +999,6 @@ bool isLost(char*& ninja, L1List<NinjaInfo_t>& recordList) {
 
       if (!ans.stop)
             ans.liststop.insertHead(*ans.lastpoint);
-
-      // ans.liststop.removeHead();
 
       while (!ans.liststop.isEmpty()) {
             try {

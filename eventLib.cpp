@@ -33,7 +33,8 @@ void loadEvents(char* fName, L1List<ninjaEvent_t>& eList) {
             if (buffer[0] == '\0' || buffer[0] == '\r')
                   continue;
 
-            for (int i = 0; buffer[i] != '\0'; ++i) {
+            int i = 0;
+            for (; buffer[i] != '\0' && buffer[i] != ';'; ++i) {
                   if (buffer[i] == ' ' || buffer[i] == ';') {
                         ninjaEvent_t event;
                         strcpy(event.code, code);
@@ -47,9 +48,12 @@ void loadEvents(char* fName, L1List<ninjaEvent_t>& eList) {
                         code[codeIndex++] = buffer[i];
                   }
             }
+
+            if (buffer[i] == ';')
+                  break;
       } while (file.getline(buffer, 100));
       delete[] buffer;
-      buffer = NULL;
+      buffer = nullptr;
       file.close();
 
       if (code[0] != '\0') {
@@ -59,5 +63,5 @@ void loadEvents(char* fName, L1List<ninjaEvent_t>& eList) {
       }
 
       delete[] code;
-      code = NULL;
+      code = nullptr;
 }
