@@ -24,10 +24,10 @@ void problem7(L1List<NinjaInfo_t>&, char*&);
 void problem8(L1List<NinjaInfo_t>&, L1List<char*>&, char*&);
 void problem9(L1List<NinjaInfo_t>&, L1List<char*>&);
 void problem10(L1List<NinjaInfo_t>&, L1List<char*>&);
-void problem11(L1List<char*>&, char*&);
+void problem11(L1List<char*>&, char*&, L1List<char**>&);
 void problem12(L1List<NinjaInfo_t>&, L1List<char*>&);
 void problem13(L1List<NinjaInfo_t>&, char*&);
-void problem14(L1List<NinjaInfo_t>&, L1List<char*>&);
+void problem14(L1List<NinjaInfo_t>&, L1List<char*>&, L1List<char**>&, bool&);
 
 // time from lhs, to rhs
 double timeInterval(NinjaInfo_t& from, NinjaInfo_t& to) {
@@ -51,7 +51,9 @@ double* parseTrapPlace(const char*);
 bool    isTrap(NinjaInfo_t&, double[4]);
 bool    isLost(char*& ninja, L1List<NinjaInfo_t>& recordList);
 int     isInList(L1List<char*>&, const char*);
+int     isInList(L1List<char**>&, char**&);
 void    removeNinja(L1List<char*>&, const char*);
+void    removeNinja(L1List<char**>&, char**&);
 
 // print the result
 void print(char*&);
@@ -59,6 +61,7 @@ void print(const char*);
 void print(const int&);
 void print(const double&);
 void print(L1List<char*>&);
+void print(L1List<char**>&);
 void print(time_t&);
 
 
@@ -73,11 +76,12 @@ bool processEvent(
    L1List<NinjaInfo_t>& nList,
    void*                pGData) {
       // TODO: Your code comes here
-      L1List<char*>** listOfList = (L1List<char*>**) pGData;
-      L1List<char*>*  allEvents  = listOfList[0];
-      L1List<char*>*  allNinjas  = listOfList[1];
+      void**          Data      = (void**) pGData;
+      L1List<char*>*  allEvents = (L1List<char*>*) Data[0];
+      L1List<char*>*  allNinjas = (L1List<char*>*) Data[1];
+      L1List<char**>* event14   = (L1List<char**>*) Data[2];
+      bool            allLost   = false;
       // allEvents by its order
-      // allNinjas by the reversed order
 
 
       /// NOTE: The output of the event will be printed on one line
@@ -124,19 +128,18 @@ bool processEvent(
                   problem10(nList, *allNinjas);
                   break;
             case 11:
-                  problem11(*allNinjas, args);
+                  problem11(*allNinjas, args, *event14);
                   break;
             case 12:
                   problem12(nList, *allNinjas);
                   break;
             case 13:
-                  delete[] args;
-                  args = nullptr;
                   return false;
-                  // problem13(nList, args);
+                  break;
+            case -13:
                   break;
             case 14:
-                  problem14(nList, *allNinjas);
+                  problem14(nList, *allNinjas, *event14, allLost);
                   break;
             default:
                   delete[] args;
@@ -159,6 +162,10 @@ bool processEvent(
 
 int extractEvent(ninjaEvent_t& Event, char*& args) {
       int codeLength = strlen(Event.code);
+
+      // 13...
+      if (Event.code[0] == '1' && Event.code[1] == '3' && Event.code[2] != '\0')
+            return -13;
 
       switch (codeLength) {
             case 1:
@@ -185,13 +192,6 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
                   args[4] = '\0';
                   return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
 
-            case 18:
-                  args = new char[17];
-                  for (int i = 0; i < 16; ++i)
-                        args[i] = Event.code[i + 2];
-                  args[16] = '\0';
-                  return 10 * (Event.code[0] - '0') + (Event.code[1] - '0');
-
             default:
                   return -1;
       }
@@ -205,34 +205,51 @@ int extractEvent(ninjaEvent_t& Event, char*& args) {
 
 void problem0(L1List<char*>& allEvents) {
       print(allEvents);
-      cout << endl;
+      cout << "\n";
 }
 void problem1(L1List<NinjaInfo_t>& recordList) {
-      print(recordList[0].id);
-      cout << endl;
+      if (recordList.isEmpty())
+            print("empty");
+      else
+            print(recordList[0].id);
+      cout << "\n";
 }
 void problem2(L1List<NinjaInfo_t>& recordList) {
-      print(recordList[recordList.getSize() - 1].id);
-      cout << endl;
+      if (recordList.isEmpty())
+            print("empty");
+      else
+            print(recordList[recordList.getSize() - 1].id);
+      cout << "\n";
 }
 void problem3(L1List<char*>& ninjaList) {
       print((int) ninjaList.getSize());
-      cout << endl;
+      cout << "\n";
 }
 void problem4(L1List<char*>& ninjaList) {
-      char** maxId = new char*();
-      *maxId       = ninjaList.at(0);
-
       auto findMaxId = [](char*& ninja, void* v) {
             char** maxId = (char**) v;
+            if (*maxId == nullptr) {
+                  *maxId = ninja;
+                  return;
+            }
             if (strcmp(ninja, *maxId) > 0)
                   *maxId = ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print("empty");
+            cout << "\n";
+            return;
+      }
+
+      char** maxId = new char*();
       ninjaList.traverse(findMaxId, maxId);
 
-      print(*maxId);
-      cout << endl;
+      if (*maxId)
+            print(*maxId);
+      else
+            print("empty");
+      cout << "\n";
       delete maxId;
       maxId = nullptr;
 }
@@ -298,12 +315,12 @@ void problem5(L1List<NinjaInfo_t>& recordList, char*& ninja) {
             recordList.traverse(findFirstMove, &ans);
       } catch (bool b) {
             print(ans.ret);
-            cout << endl;
+            cout << "\n";
             return;
       }
 
       print(-1);
-      cout << endl;
+      cout << "\n";
 }
 void problem6(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       struct Ans
@@ -361,7 +378,7 @@ void problem6(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       else
             print(ans.lastStopPlace->timestamp);
 
-      cout << endl;
+      cout << "\n";
 }
 void problem7(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       struct Ans
@@ -422,15 +439,19 @@ void problem7(L1List<NinjaInfo_t>& recordList, char*& ninja) {
       else
             print(ans.timeStop);
 
-      cout << endl;
+      cout << "\n";
 }
 void problem8(
    L1List<NinjaInfo_t>& recordList,
    L1List<char*>&       allNinjas,
    char*&               ninja) {
+      if (!isInList(allNinjas, ninja)) {
+            print(-1);
+            return;
+      }
       double distance = TotalDistance(recordList, ninja);
-      print(distance ? distance : -1);
-      cout << endl;
+      print(distance);
+      cout << "\n";
 }
 void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -460,11 +481,17 @@ void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             ans->ninja       = &ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(recordList);
       ninjaList.traverse(findDistanceMax, &ans);
 
       print(*ans.ninja);
-      cout << endl;
+      cout << "\n";
 }
 void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -488,7 +515,7 @@ void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             Ans*   ans          = (Ans*) v;
             double maxThisNinja = TotalTime(ans->recordList, ninja);
 
-            //  cout << ninja << ": " << maxThisNinja << endl;
+            //  cout << ninja << ": " << maxThisNinja << "\n";
 
             if (ans->maxTime >= maxThisNinja)
                   return;
@@ -497,13 +524,22 @@ void problem10(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             *ans->ninja  = ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(recordList);
       ninjaList.traverse(findDistanceMax, &ans);
 
       print(*ans.ninja);
-      cout << endl;
+      cout << "\n";
 }
-void problem11(L1List<char*>& ninjaList, char*& ninja) {
+void problem11(
+   L1List<char*>&  ninjaList,
+   char*&          ninja,
+   L1List<char**>& event14) {
       struct Ans
       {
             char**       attackedNinja;
@@ -530,6 +566,12 @@ void problem11(L1List<char*>& ninjaList, char*& ninja) {
             }
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(ninja);
       ninjaList.traverse(findAttackedNinja, &ans);
 
@@ -538,8 +580,10 @@ void problem11(L1List<char*>& ninjaList, char*& ninja) {
       else {
             print(*ans.attackedNinja);
             removeNinja(ninjaList, *ans.attackedNinja);
+            if (!event14.isEmpty())
+                  removeNinja(event14, ans.attackedNinja);
       }
-      cout << endl;
+      cout << "\n";
 }
 void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
       struct Ans
@@ -570,11 +614,17 @@ void problem12(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
             *ans->ninja  = ninja;
       };
 
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
+
       Ans ans(recordList);
       ninjaList.traverse(findDistanceMax, &ans);
 
       print(*ans.ninja);
-      cout << endl;
+      cout << "\n";
 }
 void problem13(L1List<NinjaInfo_t>& recordList, char*& trap) {
       struct Ans
@@ -618,37 +668,57 @@ void problem13(L1List<NinjaInfo_t>& recordList, char*& trap) {
       else
             print(*ans->trapList);
 
-      cout << endl;
+      cout << "\n";
 }
-void problem14(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
+void problem14(
+   L1List<NinjaInfo_t>& recordList,
+   L1List<char*>&       ninjaList,
+   L1List<char**>&      event14,
+   bool&                allLost) {
 
       struct Ans
       {
-            L1List<char*>        list;
+            L1List<char**>*      list;
             L1List<NinjaInfo_t>* recordList;
 
             ~Ans() {
+                  list       = nullptr;
                   recordList = nullptr;
             }
       };
 
       auto getlostlist = [](char*& ninja, void* v) {
             Ans* ans = (Ans*) v;
-            if (isLost(ninja, *ans->recordList))
-                  ans->list.insertHead(ninja);
+            if (!isLost(ninja, *ans->recordList))
+                  return;
+
+            char** ninja_address = &ninja;
+            ans->list->insertHead(ninja_address);
       };
 
-      Ans ans;
-      ans.recordList = &recordList;
+      if (ninjaList.isEmpty()) {
+            print(-1);
+            cout << "\n";
+            return;
+      }
 
-      ninjaList.traverse(getlostlist, &ans);
+      if (event14.isEmpty() && !allLost) {
+            Ans ans;
+            ans.list       = &event14;
+            ans.recordList = &recordList;
 
-      ans.list.reverse();
-      if (ans.list.isEmpty())
+            ninjaList.traverse(getlostlist, &ans);
+            ans.list->reverse();
+
+            if (ans.list->isEmpty())
+                  allLost = true;
+      }
+
+      if (event14.isEmpty())
             print(-1);
       else
-            print(ans.list);
-      cout << endl;
+            print(event14);
+      cout << "\n";
 }
 
 
@@ -688,7 +758,7 @@ double TotalDistance(L1List<NinjaInfo_t>& recordList, const char* ninja) {
 
             else {
                   // ans->distance += distance(ans->lastStop, info);
-                  // cout << ans->distance << endl;
+                  // cout << ans->distance << "\n";
                   //*
                   ans->distance += distanceEarth(
                      ans->lastStop->latitude,
@@ -957,8 +1027,6 @@ bool isLost(char*& ninja, L1List<NinjaInfo_t>& recordList) {
       if (!ans.stop)
             ans.liststop.insertHead(*ans.lastpoint);
 
-      // ans.liststop.removeHead();
-
       while (!ans.liststop.isEmpty()) {
             try {
                   findloop(ans.liststop);
@@ -1006,8 +1074,46 @@ int isInList(L1List<char*>& ninjaList, const char* ninja) {
       }
       return -1;
 }
+int isInList(L1List<char**>& ninjaList, char**& ninja) {
 
+      struct Ans
+      {
+            char** ninja;
+            int    index;
+
+            Ans(char** c) {
+                  ninja = c;
+                  index = -1;
+            }
+
+            ~Ans() {
+                  ninja = nullptr;
+            }
+      };
+
+      auto findNinja = [](char**& ninjaInList, void* v) {
+            Ans* ans = (Ans*) v;
+
+            ans->index++;
+
+            if (ninjaInList == ans->ninja) {
+                  throw true;
+            }
+      };
+
+      Ans ans(ninja);
+
+      try {
+            ninjaList.traverse(findNinja, &ans);
+      } catch (bool b) {
+            return ans.index;
+      }
+      return -1;
+}
 void removeNinja(L1List<char*>& ninjaList, const char* ninja) {
+      ninjaList.remove(isInList(ninjaList, ninja));
+}
+void removeNinja(L1List<char**>& ninjaList, char**& ninja) {
       ninjaList.remove(isInList(ninjaList, ninja));
 }
 
@@ -1033,6 +1139,10 @@ void print(const double& d) {
 void print(L1List<char*>& l) {
       void (*op)(char*&) = &print;
       l.traverse(op);
+}
+void print(L1List<char**>& l) {
+      auto print_charpp = [](char**& c) { cout << " " << *c; };
+      l.traverse(print_charpp);
 }
 void print(time_t& t) {
       char* time = new char[26];
