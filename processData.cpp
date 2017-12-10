@@ -51,7 +51,7 @@ double* parseTrapPlace(const char*);
 bool    isTrap(NinjaInfo_t&, double[4]);
 bool    isLost(char*& ninja, L1List<NinjaInfo_t>& recordList);
 int     isInList(L1List<char*>&, const char*);
-int     isInList(L1List<char**>&, const char**&);
+int     isInList(L1List<char**>&, char**&);
 void    removeNinja(L1List<char*>&, const char*);
 void    removeNinja(L1List<char**>&, char**&);
 
@@ -445,8 +445,12 @@ void problem8(
    L1List<NinjaInfo_t>& recordList,
    L1List<char*>&       allNinjas,
    char*&               ninja) {
+      if (!isInList(allNinjas, ninja)) {
+            print(-1);
+            return;
+      }
       double distance = TotalDistance(recordList, ninja);
-      print(distance ? distance : -1);
+      print(distance);
       cout << "\n";
 }
 void problem9(L1List<NinjaInfo_t>& recordList, L1List<char*>& ninjaList) {
